@@ -1,57 +1,59 @@
-package com.example.map.presentation.view.main.adapter.viewholder;
+package com.example.map.presentation.view.main.adapter.viewholder
 
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.map.R
+import com.example.map.databinding.ItemDocumentBinding
+import com.example.map.presentation.model.Document
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.map.R;
-import com.example.map.databinding.ItemDocumentBinding;
-import com.example.map.presentation.model.Document;
-
-import java.util.Locale;
-
-import kotlin.collections.ArraysKt;
-
-public class DocumentViewHolder extends RecyclerView.ViewHolder {
-    private final ItemDocumentBinding binding;
-    private final OnClickListener onClickListener;
-
-    public DocumentViewHolder(@NonNull ItemDocumentBinding binding, OnClickListener onClickListener) {
-        super(binding.getRoot());
-        this.binding = binding;
-        this.onClickListener = onClickListener;
-    }
-
-    public void bind(Document document, int position) {
-        binding.tvName.setText(document.getPlaceName());
-        String category = ArraysKt.lastOrNull(document.getCategoryName().split(">"));
+class DocumentViewHolder(
+    private val binding: ItemDocumentBinding,
+    private val onClickListener: OnClickListener
+) : RecyclerView.ViewHolder(binding.root) {
+    fun bind(document: Document, position: Int) {
+        binding.tvName.text = document.placeName
+        var category = document.categoryName.split(">".toRegex()).dropLastWhile {
+            it.isEmpty()
+        }.toTypedArray().lastOrNull()
         if (category == null) {
-            category = document.getCategoryName();
+            category = document.categoryName
         }
-        binding.tvCategory.setText(category);
-        binding.tvAddress.setText(document.getRoadAddressName());
-        binding.tvRate.setText(itemView.getContext().getString(R.string.DocumentViewHolder_rate, String.format(Locale.getDefault(), "%.1f", document.getRate())));
-        if (document.isFavorite()) {
-            binding.btnFavorite.setImageResource(R.drawable.baseline_bookmark_24);
-            binding.btnFavorite.setOnClickListener(v -> onClickListener.onUnFavoriteClick(document));
+        binding.tvCategory.text = category
+        binding.tvAddress.text = document.roadAddressName
+        binding.tvRate.text = itemView.context.getString(
+            R.string.DocumentViewHolder_rate, String.format(
+                Locale.getDefault(), "%.1f", document.rate
+            )
+        )
+        if (document.isFavorite) {
+            binding.btnFavorite.setImageResource(R.drawable.baseline_bookmark_24)
+            binding.btnFavorite.setOnClickListener {
+                onClickListener.onUnFavoriteClick(document)
+            }
         } else {
-            binding.btnFavorite.setImageResource(R.drawable.baseline_bookmark_border_24);
-            binding.btnFavorite.setOnClickListener(v -> onClickListener.onFavoriteClick(document));
+            binding.btnFavorite.setImageResource(R.drawable.baseline_bookmark_border_24)
+            binding.btnFavorite.setOnClickListener {
+                onClickListener.onFavoriteClick(document)
+            }
         }
-        binding.getRoot().setSelected(document.isSelected());
-        binding.getRoot().setOnClickListener(v -> onClickListener.onClick(document, position));
+        binding.root.isSelected = document.isSelected
+        binding.root.setOnClickListener { onClickListener.onClick(document, position) }
     }
 
-    public interface OnClickListener {
-        void onClick(Document document, int position);
-        void onFavoriteClick(Document document);
-        void onUnFavoriteClick(Document document);
+    interface OnClickListener {
+        fun onClick(document: Document, position: Int)
+        fun onFavoriteClick(document: Document)
+        fun onUnFavoriteClick(document: Document)
     }
 
-    public static DocumentViewHolder create(ViewGroup parent, OnClickListener onClickListener) {
-        ItemDocumentBinding binding = ItemDocumentBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new DocumentViewHolder(binding, onClickListener);
+    companion object {
+        fun create(parent: ViewGroup, onClickListener: OnClickListener): DocumentViewHolder {
+            val binding = ItemDocumentBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+            return DocumentViewHolder(binding, onClickListener)
+        }
     }
 }

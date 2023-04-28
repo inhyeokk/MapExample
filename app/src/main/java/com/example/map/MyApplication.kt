@@ -1,7 +1,5 @@
-package com.example.map;
+package com.example.map
 
-import android.app.Application;
+import android.app.Application
 
-public class MyApplication extends Application {
-
-}
+class MyApplication : Application()

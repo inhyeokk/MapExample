@@ -1,28 +1,27 @@
-package com.example.map.data.local.database;
+package com.example.map.data.local.database
 
-import android.content.Context;
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import com.example.map.data.local.dao.FavoriteDocumentDao
+import com.example.map.data.local.model.DocumentEntity
 
-import androidx.room.Database;
-import androidx.room.Room;
-import androidx.room.RoomDatabase;
+@Database(entities = [DocumentEntity::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun favoriteDocumentDao(): FavoriteDocumentDao
 
-import com.example.map.data.local.dao.FavoriteDocumentDao;
-import com.example.map.data.local.model.DocumentEntity;
-
-@Database(entities = {DocumentEntity.class}, version = 1)
-public abstract class AppDatabase extends RoomDatabase {
-    public abstract FavoriteDocumentDao favoriteDocumentDao();
-
-    private static volatile AppDatabase instance;
-
-    public static AppDatabase getInstance(Context context) {
-        if (instance == null) {
-            synchronized (AppDatabase.class) {
-                if (instance == null) {
-                    instance = Room.databaseBuilder(context, AppDatabase.class, "app-database").build();
-                }
+    companion object {
+        @Volatile
+        private var instance: AppDatabase? = null
+        fun getInstance(context: Context): AppDatabase {
+            return instance ?: synchronized(this) {
+                instance ?: buildDatabase(context).also { instance = it }
             }
         }
-        return instance;
+
+        private fun buildDatabase(context: Context): AppDatabase {
+            return Room.databaseBuilder(context, AppDatabase::class.java, "app-database").build()
+        }
     }
 }

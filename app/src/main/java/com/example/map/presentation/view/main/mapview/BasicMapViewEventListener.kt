@@ -1,52 +1,16 @@
-package com.example.map.presentation.view.main.mapview;
+package com.example.map.presentation.view.main.mapview
 
-import net.daum.mf.map.api.MapPoint;
-import net.daum.mf.map.api.MapView;
+import net.daum.mf.map.api.MapPoint
+import net.daum.mf.map.api.MapView
 
-public class BasicMapViewEventListener implements MapView.MapViewEventListener {
-    @Override
-    public void onMapViewInitialized(MapView mapView) {
-
-    }
-
-    @Override
-    public void onMapViewCenterPointMoved(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewZoomLevelChanged(MapView mapView, int i) {
-
-    }
-
-    @Override
-    public void onMapViewSingleTapped(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewDoubleTapped(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewLongPressed(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewDragStarted(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewDragEnded(MapView mapView, MapPoint mapPoint) {
-
-    }
-
-    @Override
-    public void onMapViewMoveFinished(MapView mapView, MapPoint mapPoint) {
-
-    }
-
+open class BasicMapViewEventListener : MapView.MapViewEventListener {
+    override fun onMapViewInitialized(mapView: MapView) {}
+    override fun onMapViewCenterPointMoved(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewZoomLevelChanged(mapView: MapView, i: Int) {}
+    override fun onMapViewSingleTapped(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewDoubleTapped(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewLongPressed(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewDragStarted(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewDragEnded(mapView: MapView, mapPoint: MapPoint) {}
+    override fun onMapViewMoveFinished(mapView: MapView, mapPoint: MapPoint) {}
 }

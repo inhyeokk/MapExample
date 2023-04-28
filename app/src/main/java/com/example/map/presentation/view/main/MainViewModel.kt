@@ -1,246 +1,199 @@
-package com.example.map.presentation.view.main;
+package com.example.map.presentation.view.main
 
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.SavedStateHandleSupport;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.viewmodel.ViewModelInitializer;
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.map.MyApplication
+import com.example.map.SingleLiveEvent
+import com.example.map.base.BaseViewModel
+import com.example.map.data.local.database.AppDatabase
+import com.example.map.data.remote.model.LocalSearchResult
+import com.example.map.data.repositoryimpl.FavoriteDocumentRepositoryImpl
+import com.example.map.data.repositoryimpl.LocalSearchRepositoryImpl
+import com.example.map.domain.repository.LocalSearchRepository
+import com.example.map.domain.request.SearchByCategoryRequest
+import com.example.map.domain.request.SearchByKeywordRequest
+import com.example.map.presentation.model.Document
+import com.example.map.presentation.model.DocumentResult
+import com.example.map.presentation.view.main.entity.ListMode
+import com.example.map.presentation.view.main.entity.MapViewMode
+import com.example.map.presentation.view.main.entity.SearchType
+import com.example.map.presentation.view.main.entity.SelectPosition
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
+import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 
-import com.example.map.MyApplication;
-import com.example.map.SingleLiveEvent;
-import com.example.map.base.BaseViewModel;
-import com.example.map.data.local.database.AppDatabase;
-import com.example.map.data.remote.model.LocalSearchResult;
-import com.example.map.data.repositoryimpl.FavoriteDocumentRepositoryImpl;
-import com.example.map.data.repositoryimpl.LocalSearchRepositoryImpl;
-import com.example.map.domain.repository.FavoriteDocumentRepository;
-import com.example.map.domain.repository.LocalSearchRepository;
-import com.example.map.domain.request.SearchByCategoryRequest;
-import com.example.map.domain.request.SearchByKeywordRequest;
-import com.example.map.extension.ListKt;
-import com.example.map.presentation.model.Document;
-import com.example.map.presentation.model.DocumentResult;
-import com.example.map.presentation.view.main.entity.ListMode;
-import com.example.map.presentation.view.main.entity.MapViewMode;
-import com.example.map.presentation.view.main.entity.SearchType;
-import com.example.map.presentation.view.main.entity.SelectPosition;
-
-import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-import kotlin.collections.CollectionsKt;
-
-public class MainViewModel extends BaseViewModel {
-    private final SavedStateHandle handle;
-    private final LocalSearchRepository localSearchRepository = new LocalSearchRepositoryImpl();
-    private final FavoriteDocumentRepository favoriteDocumentRepository;
-
-    public MutableLiveData<MapViewMode> mapViewModeLiveData;
-    public MutableLiveData<CurrentLocationTrackingMode> trackingModeLiveData;
-    public MutableLiveData<ListMode> listModeLiveData;
-    public SingleLiveEvent<DocumentResult> documentResultEvent = new SingleLiveEvent<>();
-    private final List<Document> favoriteDocumentListCache = new ArrayList<>();
-    public SingleLiveEvent<MainAction> mainActionEvent = new SingleLiveEvent<>();
-    public SingleLiveEvent<SelectPosition> selectPositionEvent = new SingleLiveEvent<>();
-
-    public MainViewModel(SavedStateHandle handle, AppDatabase appDatabase) {
-        this.handle = handle;
-        favoriteDocumentRepository = new FavoriteDocumentRepositoryImpl(appDatabase.favoriteDocumentDao());
-        mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT);
-        trackingModeLiveData = handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
-        listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST);
-        compositeDisposable.add(favoriteDocumentRepository.getAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(documentEntities -> {
-                List<Document> favoriteDocumentList = CollectionsKt.map(documentEntities, Document::fromDocumentEntity);
-                favoriteDocumentListCache.clear();
-                favoriteDocumentListCache.addAll(favoriteDocumentList);
-                DocumentResult result = documentResultEvent.getValue();
-                if (result != null) {
-                    setDocumentListWithFavorite(result.getDocumentList(), favoriteDocumentList, false);
-                }
-            }, throwable -> {
-                // do nothing
-            })
-        );
-    }
-
-    public MapViewMode getMapViewMode() {
-        return mapViewModeLiveData.getValue();
-    }
-
-    public void setMapViewMode(MapViewMode mapViewMode) {
-        if (mapViewMode.isNotDefault()) {
-            disableTrackingMode();
-            setListMode(ListMode.LIST);
+class MainViewModel(
+    private val handle: SavedStateHandle, appDatabase: AppDatabase
+) : BaseViewModel() {
+    private val localSearchRepository: LocalSearchRepository = LocalSearchRepositoryImpl()
+    private val favoriteDocumentRepository = FavoriteDocumentRepositoryImpl(appDatabase.favoriteDocumentDao())
+    val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
+    val trackingModeLiveData = handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
+    val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
+    var documentResultEvent = SingleLiveEvent<DocumentResult>()
+    private val favoriteDocumentListCache: MutableList<Document> = ArrayList()
+    var mainActionEvent = SingleLiveEvent<MainAction?>()
+    var selectPositionEvent = SingleLiveEvent<SelectPosition>()
+    var mapViewMode: MapViewMode
+        get() = mapViewModeLiveData.value!!
+        set(mapViewMode) {
+            if (mapViewMode.isNotDefault) {
+                disableTrackingMode()
+                listMode = ListMode.LIST
+            }
+            mapViewModeLiveData.value = mapViewMode
         }
-        mapViewModeLiveData.setValue(mapViewMode);
-    }
 
-    public void toggleTrackingMode() {
-        CurrentLocationTrackingMode trackingMode = trackingModeLiveData.getValue();
+    fun toggleTrackingMode() {
+        var trackingMode = trackingModeLiveData.value
         if (trackingMode == null) {
-            trackingMode = CurrentLocationTrackingMode.TrackingModeOnWithoutHeading;
+            trackingMode = CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
         }
-        CurrentLocationTrackingMode newTrackingMode;
-        switch (trackingMode) {
-            case TrackingModeOnWithoutHeading:
-                newTrackingMode = CurrentLocationTrackingMode.TrackingModeOnWithHeading;
-                break;
-            case TrackingModeOnWithHeading:
-                newTrackingMode = CurrentLocationTrackingMode.TrackingModeOff;
-                break;
-            default:
-                newTrackingMode = CurrentLocationTrackingMode.TrackingModeOnWithoutHeading;
-                break;
+        val newTrackingMode = when (trackingMode) {
+            CurrentLocationTrackingMode.TrackingModeOnWithoutHeading -> CurrentLocationTrackingMode.TrackingModeOnWithHeading
+            CurrentLocationTrackingMode.TrackingModeOnWithHeading -> CurrentLocationTrackingMode.TrackingModeOff
+            else -> CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
         }
-        setTrackingMode(newTrackingMode);
+        setTrackingMode(newTrackingMode)
     }
 
-    public void enableTrackingMode() {
-        setTrackingMode(getTempTrackingModeForEnable());
+    fun enableTrackingMode() {
+        setTrackingMode(tempTrackingModeForEnable!!)
     }
 
-    public void disableTrackingMode() {
-        setTrackingMode(CurrentLocationTrackingMode.TrackingModeOff);
+    fun disableTrackingMode() {
+        setTrackingMode(CurrentLocationTrackingMode.TrackingModeOff)
     }
 
-    private void setTrackingMode(CurrentLocationTrackingMode trackingMode) {
-        trackingModeLiveData.setValue(trackingMode);
+    private fun setTrackingMode(trackingMode: CurrentLocationTrackingMode) {
+        trackingModeLiveData.value = trackingMode
     }
 
-    private CurrentLocationTrackingMode getTempTrackingModeForEnable() {
-        CurrentLocationTrackingMode tempTrackingMode = handle.remove(TEMP_TRACKING_MODE);
-        if (tempTrackingMode != null) {
-            return tempTrackingMode;
-        } else {
-            return CurrentLocationTrackingMode.TrackingModeOnWithoutHeading;
+    var tempTrackingModeForEnable: CurrentLocationTrackingMode?
+        get() {
+            val tempTrackingMode = handle.remove<CurrentLocationTrackingMode>(TEMP_TRACKING_MODE)
+            return tempTrackingMode ?: CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
         }
-    }
-
-    public void setTempTrackingModeForEnable(CurrentLocationTrackingMode trackingMode) {
-        handle.set(TEMP_TRACKING_MODE, trackingMode);
-    }
-
-    public ListMode getListMode() {
-        return listModeLiveData.getValue();
-    }
-
-    public void toggleListMode() {
-        ListMode listMode = getListMode();
-        if (listMode == null) {
-            listMode = ListMode.LIST;
+        set(trackingMode) {
+            handle[TEMP_TRACKING_MODE] = trackingMode
         }
-        ListMode newListMode = (listMode == ListMode.LIST) ? ListMode.MAP : ListMode.LIST;
-        setListMode(newListMode);
+    var listMode: ListMode
+        get() = listModeLiveData.value!!
+        set(listMode) {
+            listModeLiveData.value = listMode
+        }
+
+    fun toggleListMode() {
+        val newListMode = if (listMode == ListMode.LIST) ListMode.MAP else ListMode.LIST
+        this.listMode = newListMode
     }
 
-    public void setListMode(ListMode listMode) {
-        listModeLiveData.setValue(listMode);
-    }
+    val requireDocumentList get() = documentResultEvent.value!!.documentList
 
-    public List<Document> requireDocumentList() {
-        return Objects.requireNonNull(documentResultEvent.getValue()).getDocumentList();
-    }
-
-    public void search(SearchType searchType, String x, String y, boolean isMoveCamera) {
-        if (searchType.isCategory()) {
-            SearchByCategoryRequest request = new SearchByCategoryRequest(searchType.getName(), x, y, 5000);
-            localSearchRepository.searchByCategory(request, result -> {
-                handleSearchResult(searchType, result, isMoveCamera);
-            }, throwable -> {
-                setFailureOrEmpty(MainAction.SEARCH_FAILURE);
-            });
+    fun search(searchType: SearchType, x: String, y: String, isMoveCamera: Boolean) {
+        if (searchType.isCategory) {
+            val request = SearchByCategoryRequest(searchType.type, x, y, 5000)
+            localSearchRepository.searchByCategory(request, {
+                handleSearchResult(searchType, it, isMoveCamera)
+            }) { setFailureOrEmpty(MainAction.SEARCH_FAILURE) }
         } else { // keyword
-            SearchByKeywordRequest request = new SearchByKeywordRequest(searchType.getName(), x, y, 5000);
-            localSearchRepository.searchByKeyword(request, result -> {
-                handleSearchResult(searchType, result, isMoveCamera);
-            }, throwable -> {
-                setFailureOrEmpty(MainAction.SEARCH_FAILURE);
-            });
+            val request = SearchByKeywordRequest(searchType.type, x, y, 5000)
+            localSearchRepository.searchByKeyword(request, {
+                handleSearchResult(searchType, it, isMoveCamera)
+            }) { setFailureOrEmpty(MainAction.SEARCH_FAILURE) }
         }
     }
 
-    private void handleSearchResult(SearchType searchType, LocalSearchResult result, boolean isMoveCamera) {
-        if (!result.getDocuments().isEmpty()) {
-            setMapViewMode(searchType.toMapViewMode());
-            clearSelect();
-            List<Document> documentList = CollectionsKt.map(result.getDocuments(), Document::fromDocumentResult);
-            setDocumentListWithFavorite(documentList, favoriteDocumentListCache, isMoveCamera);
+    private fun handleSearchResult(
+        searchType: SearchType, result: LocalSearchResult, isMoveCamera: Boolean
+    ) {
+        if (result.documents.isNotEmpty()) {
+            mapViewMode = searchType.toMapViewMode()
+            clearSelect()
+            val documentList: List<Document> = result.documents.map {
+                Document.fromDocumentResult(it)
+            }
+            setDocumentListWithFavorite(documentList, favoriteDocumentListCache, isMoveCamera)
         } else {
-            setFailureOrEmpty(MainAction.EMPTY_SEARCH);
+            setFailureOrEmpty(MainAction.EMPTY_SEARCH)
         }
     }
 
-    private void setDocumentListWithFavorite(List<Document> documentList, List<Document> favoriteDocumentList, boolean isMoveCamera) {
-        documentList.forEach(document -> {
-            Document favoriteDocument = ListKt.find(favoriteDocumentList, document1 -> document1.getId().equals(document.getId()));
-            document.setFavorite(favoriteDocument != null);
-        });
-        documentResultEvent.setValue(new DocumentResult(documentList, isMoveCamera));
+    private fun setDocumentListWithFavorite(
+        documentList: List<Document>, favoriteDocumentList: List<Document>, isMoveCamera: Boolean
+    ) {
+        documentList.forEach {
+            val favoriteDocument = favoriteDocumentList.find { document1 -> document1.id == it.id }
+            it.isFavorite = favoriteDocument != null
+        }
+        documentResultEvent.value = DocumentResult(documentList, isMoveCamera)
     }
 
-    private void setFailureOrEmpty(MainAction mainAction) {
-        setMapViewMode(MapViewMode.DEFAULT);
-        mainActionEvent.setValue(mainAction);
+    private fun setFailureOrEmpty(mainAction: MainAction) {
+        mapViewMode = MapViewMode.DEFAULT
+        mainActionEvent.value = mainAction
     }
 
-    public void addFavoriteDocument(Document document) {
+    fun addFavoriteDocument(document: Document) {
         compositeDisposable.add(favoriteDocumentRepository.insert(document.toEntity())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(() -> {
-                // do nothing
-            }, throwable -> {
-                // do nothing
-            })
-        );
+            .subscribe({}) { })
     }
 
-    public void removeFavoriteDocument(Document document) {
+    fun removeFavoriteDocument(document: Document) {
         compositeDisposable.add(favoriteDocumentRepository.delete(document.toEntity())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(() -> {
-                // do nothing
-            }, throwable -> {
-                // do nothing
+            .subscribe({}) { })
+    }
+
+    fun selectDocument(position: Int) {
+        selectPositionEvent.value = selectPositionEvent.value?.let {
+            SelectPosition(it.position, position)
+        } ?: SelectPosition(position)
+    }
+
+    private fun clearSelect() {
+        selectPositionEvent.value = SelectPosition()
+    }
+
+    init {
+        compositeDisposable.add(favoriteDocumentRepository.getAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                val favoriteDocumentList = it.map { entity ->
+                    Document.fromDocumentEntity(entity)
+                }
+                favoriteDocumentListCache.clear()
+                favoriteDocumentListCache.addAll(favoriteDocumentList)
+                val result = documentResultEvent.value
+                if (result != null) {
+                    setDocumentListWithFavorite(
+                        result.documentList, favoriteDocumentList, false
+                    )
+                }
+            }) {
+
             })
-        );
     }
 
-    public void selectDocument(int position) {
-        SelectPosition selectPosition = selectPositionEvent.getValue();
-        if (selectPosition == null) {
-            selectPosition = new SelectPosition(position);
-        } else {
-            selectPosition = new SelectPosition(selectPosition.getPosition(), position);
+    companion object {
+        private const val MAP_VIEW_MODE = "MAP_VIEW_MODE"
+        private const val LIST_MODE = "LIST_MODE"
+        private const val TRACKING_MODE = "TRACKING_MODE"
+        private const val TEMP_TRACKING_MODE = "TEMP_TRACKING_MODE"
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val app = (this[APPLICATION_KEY] as MyApplication)
+                val savedStateHandle = createSavedStateHandle()
+                MainViewModel(savedStateHandle, AppDatabase.getInstance(app.applicationContext))
+            }
         }
-        selectPositionEvent.setValue(selectPosition);
     }
-
-    public void clearSelect() {
-        selectPositionEvent.setValue(new SelectPosition());
-    }
-
-    private static final String MAP_VIEW_MODE = "MAP_VIEW_MODE";
-    private static final String LIST_MODE = "LIST_MODE";
-    private static final String TRACKING_MODE = "TRACKING_MODE";
-    private static final String TEMP_TRACKING_MODE = "TEMP_TRACKING_MODE";
-
-    public static final ViewModelInitializer<MainViewModel> initializer = new ViewModelInitializer<>(
-        MainViewModel.class,
-        creationExtras -> {
-            MyApplication app = (MyApplication) creationExtras.get(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY);
-            assert app != null;
-            SavedStateHandle savedStateHandle = SavedStateHandleSupport.createSavedStateHandle(creationExtras);
-            return new MainViewModel(savedStateHandle, AppDatabase.getInstance(app.getApplicationContext()));
-        }
-    );
 }

@@ -1,27 +1,25 @@
-package com.example.map.presentation.view.main.mapview;
+package com.example.map.presentation.view.main.mapview
 
-import net.daum.mf.map.api.MapPOIItem;
-import net.daum.mf.map.api.MapPoint;
-import net.daum.mf.map.api.MapView;
+import net.daum.mf.map.api.MapPOIItem
+import net.daum.mf.map.api.MapPOIItem.CalloutBalloonButtonType
+import net.daum.mf.map.api.MapPoint
+import net.daum.mf.map.api.MapView
+import net.daum.mf.map.api.MapView.POIItemEventListener
 
-public class BasicPOIItemEventListener implements MapView.POIItemEventListener {
-    @Override
-    public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+open class BasicPOIItemEventListener : POIItemEventListener {
+    override fun onPOIItemSelected(mapView: MapView, mapPOIItem: MapPOIItem) {}
 
+    @Deprecated("Deprecated in Java")
+    override fun onCalloutBalloonOfPOIItemTouched(mapView: MapView, mapPOIItem: MapPOIItem) {
     }
 
-    @Override
-    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem) {
-
+    override fun onCalloutBalloonOfPOIItemTouched(
+        mapView: MapView, mapPOIItem: MapPOIItem, calloutBalloonButtonType: CalloutBalloonButtonType
+    ) {
     }
 
-    @Override
-    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
-
-    }
-
-    @Override
-    public void onDraggablePOIItemMoved(MapView mapView, MapPOIItem mapPOIItem, MapPoint mapPoint) {
-
+    override fun onDraggablePOIItemMoved(
+        mapView: MapView, mapPOIItem: MapPOIItem, mapPoint: MapPoint
+    ) {
     }
 }

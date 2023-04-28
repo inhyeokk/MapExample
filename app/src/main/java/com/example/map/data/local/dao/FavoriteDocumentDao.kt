@@ -1,30 +1,21 @@
-package com.example.map.data.local.dao;
+package com.example.map.data.local.dao
 
-import androidx.room.Dao;
-import androidx.room.Delete;
-import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
-import androidx.room.Query;
-
-import com.example.map.data.local.model.DocumentEntity;
-
-import java.util.List;
-
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
+import androidx.room.*
+import com.example.map.data.local.model.DocumentEntity
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
 
 @Dao
-public interface FavoriteDocumentDao {
+interface FavoriteDocumentDao {
     @Query("SELECT * FROM documententity")
-    Flowable<List<DocumentEntity>> getAll();
+    fun getAll(): Flowable<List<DocumentEntity>>
 
     @Query("SELECT * FROM documententity WHERE id =:id")
-    Flowable<DocumentEntity> get(String id);
+    fun get(id: String): Flowable<DocumentEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Completable insert(DocumentEntity documentEntity);
+    fun insert(documentEntity: DocumentEntity): Completable
 
     @Delete
-    Completable delete(DocumentEntity documentEntity);
-
+    fun delete(documentEntity: DocumentEntity): Completable
 }

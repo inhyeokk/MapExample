@@ -1,114 +1,54 @@
-package com.example.map.presentation.model;
+package com.example.map.presentation.model
 
-import com.example.map.data.local.model.DocumentEntity;
-import com.example.map.data.remote.model.DocumentResult;
+import com.example.map.data.local.model.DocumentEntity
+import com.example.map.data.remote.model.DocumentResult
+import net.daum.mf.map.api.MapPOIItem
+import java.util.*
 
-import net.daum.mf.map.api.MapPOIItem;
+data class Document(
+    val id: String,
+    val placeName: String,
+    val categoryName: String,
+    val roadAddressName: String,
+    private val x: String,
+    private val y: String,
+    val rate: Float,
+    var isFavorite: Boolean,
+    var isSelected: Boolean = false,
+    var mapPOIItem: MapPOIItem? = null
+) {
+    fun x() = x.toDouble()
+    fun y() = y.toDouble()
 
-import java.util.Random;
-
-public class Document {
-    private final String id;
-    private final String placeName;
-    private final String categoryName;
-    private final String roadAddressName;
-    private final String x;
-    private final String y;
-    private final float rate;
-    private boolean isFavorite;
-    private boolean isSelected;
-    private MapPOIItem mapPOIItem;
-
-    public Document(String id, String placeName, String categoryName, String roadAddressName, String x, String y, float rate, boolean isFavorite) {
-        this.id = id;
-        this.placeName = placeName;
-        this.categoryName = categoryName;
-        this.roadAddressName = roadAddressName;
-        this.x = x;
-        this.y = y;
-        this.rate = rate;
-        this.isFavorite = isFavorite;
+    fun toEntity(): DocumentEntity {
+        return DocumentEntity(id, placeName, categoryName, roadAddressName, x, y, rate)
     }
 
-    public String getId() {
-        return id;
-    }
+    companion object {
+        fun fromDocumentEntity(entity: DocumentEntity): Document {
+            return Document(
+                entity.id,
+                entity.placeName,
+                entity.categoryName,
+                entity.roadAddressName,
+                entity.x,
+                entity.y,
+                entity.rate,
+                true
+            )
+        }
 
-    public String getPlaceName() {
-        return placeName;
+        fun fromDocumentResult(result: DocumentResult): Document {
+            return Document(
+                result.id,
+                result.placeName,
+                result.categoryName,
+                result.roadAddressName,
+                result.x,
+                result.y,
+                Random().nextFloat() * 5,
+                false
+            )
+        }
     }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public String getRoadAddressName() {
-        return roadAddressName;
-    }
-
-    public Double getX() {
-        return Double.parseDouble(x);
-    }
-
-    public Double getY() {
-        return Double.parseDouble(y);
-    }
-    public float getRate() {
-        return rate;
-    }
-
-    public boolean isFavorite() {
-        return isFavorite;
-    }
-
-    public void setFavorite(boolean favorite) {
-        isFavorite = favorite;
-    }
-
-    public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean selected) {
-        isSelected = selected;
-    }
-
-    public MapPOIItem getMapPOIItem() {
-        return mapPOIItem;
-    }
-
-    public void setMapPOIItem(MapPOIItem mapPOIItem) {
-        this.mapPOIItem = mapPOIItem;
-    }
-
-    public DocumentEntity toEntity() {
-        return new DocumentEntity(id, placeName, categoryName, roadAddressName, x, y, rate);
-    }
-
-    public static Document fromDocumentEntity(DocumentEntity entity) {
-        return new Document(
-            entity.getId(),
-            entity.getPlaceName(),
-            entity.getCategoryName(),
-            entity.getRoadAddressName(),
-            entity.getX(),
-            entity.getY(),
-            entity.getRate(),
-            true
-        );
-    }
-
-    public static Document fromDocumentResult(DocumentResult result) {
-        return new Document(
-            result.getId(),
-            result.getPlaceName(),
-            result.getCategoryName(),
-            result.getRoadAddressName(),
-            result.getX(),
-            result.getY(),
-            (new Random().nextFloat() * 5),
-            false
-        );
-    }
-
 }

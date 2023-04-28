@@ -1,9 +1,8 @@
-package com.example.map.presentation.view.main.entity;
+package com.example.map.presentation.view.main.entity
 
-public enum ListMode {
+enum class ListMode {
     LIST, MAP;
 
-    public boolean isList() {
-        return this == LIST;
-    }
+    val isList: Boolean
+        get() = this == LIST
 }

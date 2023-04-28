@@ -1,21 +1,5 @@
-package com.example.map.presentation.model;
+package com.example.map.presentation.model
 
-import java.io.Serializable;
+import java.io.Serializable
 
-public class Location implements Serializable {
-    private final double latitude;
-    private final double longitude;
-
-    public Location(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-}
+data class Location(val latitude: Double, val longitude: Double) : Serializable

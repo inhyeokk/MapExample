@@ -1,54 +1,40 @@
-package com.example.map.presentation.view.main.adapter;
+package com.example.map.presentation.view.main.adapter
 
-import android.view.ViewGroup;
+import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
+import com.example.map.presentation.model.Document
+import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHolder
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHolder;
-import com.example.map.presentation.model.Document;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class DocumentAdapter extends RecyclerView.Adapter<DocumentViewHolder> {
-    private final ArrayList<Document> documentList = new ArrayList<>();
-    private final DocumentViewHolder.OnClickListener onClickListener;
-
-    public DocumentAdapter(DocumentViewHolder.OnClickListener onClickListener) {
-        this.onClickListener = onClickListener;
+class DocumentAdapter(
+    private val onClickListener: DocumentViewHolder.OnClickListener
+    ) : RecyclerView.Adapter<DocumentViewHolder>() {
+    private val documentList = ArrayList<Document>()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DocumentViewHolder {
+        return DocumentViewHolder.create(parent, onClickListener)
     }
 
-    @NonNull
-    @Override
-    public DocumentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return DocumentViewHolder.create(parent, onClickListener);
+    override fun onBindViewHolder(holder: DocumentViewHolder, position: Int) {
+        holder.bind(documentList[position], position)
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull DocumentViewHolder holder, int position) {
-        holder.bind(documentList.get(position), position);
+    override fun getItemCount(): Int {
+        return documentList.size
     }
 
-    @Override
-    public int getItemCount() {
-        return documentList.size();
+    fun setItemList(documentList: List<Document>) {
+        this.documentList.clear()
+        this.documentList.addAll(documentList)
+        notifyDataSetChanged()
     }
 
-    public void setItemList(List<Document> documentList) {
-        this.documentList.clear();
-        this.documentList.addAll(documentList);
-        notifyDataSetChanged();
-    }
-
-    public void updateSelect(int oldPosition, int position) {
+    fun updateSelect(oldPosition: Int, position: Int) {
         if (oldPosition != -1) {
-            documentList.get(oldPosition).setSelected(false);
-            notifyItemChanged(oldPosition);
+            documentList[oldPosition].isSelected = false
+            notifyItemChanged(oldPosition)
         }
         if (position != -1) {
-            documentList.get(position).setSelected(true);
-            notifyItemChanged(position);
+            documentList[position].isSelected = true
+            notifyItemChanged(position)
         }
     }
 }

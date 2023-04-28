@@ -7,9 +7,6 @@
 <img width="200" src="https://user-images.githubusercontent.com/32588087/216824366-5d8ffd18-35e8-48a1-a545-dccfca487782.jpeg">
 </div>
 
-## Languages
-- App : Java
-
 ## Libraries
 - Jetpack
   - [Room](https://developer.android.com/jetpack/androidx/releases/room?hl=ko)

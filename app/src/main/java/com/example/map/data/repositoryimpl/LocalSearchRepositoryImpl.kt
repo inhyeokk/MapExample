@@ -1,66 +1,75 @@
-package com.example.map.data.repositoryimpl;
+package com.example.map.data.repositoryimpl
 
-import androidx.annotation.NonNull;
+import com.example.map.data.remote.api.KakaoLocalServiceFactory
+import com.example.map.data.remote.api.LocalSearchApi
+import com.example.map.data.remote.model.LocalSearchResult
+import com.example.map.domain.repository.LocalSearchRepository
+import com.example.map.domain.request.SearchByAddressRequest
+import com.example.map.domain.request.SearchByCategoryRequest
+import com.example.map.domain.request.SearchByKeywordRequest
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.util.function.Consumer
 
-import com.example.map.data.remote.api.KakaoLocalServiceFactory;
-import com.example.map.data.remote.api.LocalSearchApi;
-import com.example.map.data.remote.model.LocalSearchResult;
-import com.example.map.domain.repository.LocalSearchRepository;
-import com.example.map.domain.request.SearchByAddressRequest;
-import com.example.map.domain.request.SearchByCategoryRequest;
-import com.example.map.domain.request.SearchByKeywordRequest;
+class LocalSearchRepositoryImpl : LocalSearchRepository {
+    private val localSearchApi = KakaoLocalServiceFactory.create(LocalSearchApi::class.java)
 
-import java.util.function.Consumer;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class LocalSearchRepositoryImpl implements LocalSearchRepository {
-    private final LocalSearchApi localSearchApi = KakaoLocalServiceFactory.create(LocalSearchApi.class);
-
-    @Override
-    public void searchByAddress(SearchByAddressRequest request, Consumer<LocalSearchResult> onSuccess, Consumer<Throwable> onFailure) {
-        localSearchApi.searchByAddress(request.getQuery()).enqueue(new Callback<LocalSearchResult>() {
-            @Override
-            public void onResponse(@NonNull Call<LocalSearchResult> call, @NonNull Response<LocalSearchResult> response) {
-                onSuccess.accept(response.body());
+    override fun searchByAddress(
+        request: SearchByAddressRequest,
+        onSuccess: Consumer<LocalSearchResult>,
+        onFailure: Consumer<Throwable>
+    ) {
+        localSearchApi.searchByAddress(request.query).enqueue(object : Callback<LocalSearchResult> {
+            override fun onResponse(
+                call: Call<LocalSearchResult>, response: Response<LocalSearchResult>
+            ) {
+                onSuccess.accept(response.body()!!)
             }
 
-            @Override
-            public void onFailure(@NonNull Call<LocalSearchResult> call, @NonNull Throwable t) {
-                onFailure.accept(t);
+            override fun onFailure(call: Call<LocalSearchResult>, t: Throwable) {
+                onFailure.accept(t)
             }
-        });
+        })
     }
 
-    @Override
-    public void searchByCategory(SearchByCategoryRequest request, Consumer<LocalSearchResult> onSuccess, Consumer<Throwable> onFailure) {
-        localSearchApi.searchByCategory(request.getCategoryGroupCode(), request.getX(), request.getY(), request.getRadius()).enqueue(new Callback<LocalSearchResult>() {
-            @Override
-            public void onResponse(@NonNull Call<LocalSearchResult> call, @NonNull Response<LocalSearchResult> response) {
-                onSuccess.accept(response.body());
+    override fun searchByCategory(
+        request: SearchByCategoryRequest,
+        onSuccess: Consumer<LocalSearchResult>,
+        onFailure: Consumer<Throwable>
+    ) {
+        localSearchApi.searchByCategory(
+            request.categoryGroupCode, request.x, request.y, request.radius
+        ).enqueue(object : Callback<LocalSearchResult> {
+            override fun onResponse(
+                call: Call<LocalSearchResult>, response: Response<LocalSearchResult>
+            ) {
+                onSuccess.accept(response.body()!!)
             }
 
-            @Override
-            public void onFailure(@NonNull Call<LocalSearchResult> call, @NonNull Throwable t) {
-                onFailure.accept(t);
+            override fun onFailure(call: Call<LocalSearchResult>, t: Throwable) {
+                onFailure.accept(t)
             }
-        });
+        })
     }
 
-    @Override
-    public void searchByKeyword(SearchByKeywordRequest request, Consumer<LocalSearchResult> onSuccess, Consumer<Throwable> onFailure) {
-        localSearchApi.searchByKeyword(request.getQuery(), request.getX(), request.getY(), request.getRadius()).enqueue(new Callback<LocalSearchResult>() {
-            @Override
-            public void onResponse(@NonNull Call<LocalSearchResult> call, @NonNull Response<LocalSearchResult> response) {
-                onSuccess.accept(response.body());
+    override fun searchByKeyword(
+        request: SearchByKeywordRequest,
+        onSuccess: Consumer<LocalSearchResult>,
+        onFailure: Consumer<Throwable>
+    ) {
+        localSearchApi.searchByKeyword(
+            request.query, request.x, request.y, request.radius
+        ).enqueue(object : Callback<LocalSearchResult> {
+            override fun onResponse(
+                call: Call<LocalSearchResult>, response: Response<LocalSearchResult>
+            ) {
+                onSuccess.accept(response.body()!!)
             }
 
-            @Override
-            public void onFailure(@NonNull Call<LocalSearchResult> call, @NonNull Throwable t) {
-                onFailure.accept(t);
+            override fun onFailure(call: Call<LocalSearchResult>, t: Throwable) {
+                onFailure.accept(t)
             }
-        });
+        })
     }
 }

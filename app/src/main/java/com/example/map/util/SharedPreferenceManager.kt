@@ -1,49 +1,53 @@
-package com.example.map.util;
+package com.example.map.util
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Context
+import com.example.map.presentation.model.Location
+import com.google.gson.Gson
 
-import com.example.map.presentation.model.Location;
-import com.google.gson.Gson;
-
-public class SharedPreferenceManager {
-    private static final String KEY_IS_FIRST = "KEY_IS_FIRST";
-    private static final String KEY_LAST_LOCATION = "KEY_LAST_LOCATION";
-
-    public static boolean isFirst(Context context) {
-        return getBoolean(context, KEY_IS_FIRST);
+object SharedPreferenceManager {
+    private const val KEY_IS_FIRST = "KEY_IS_FIRST"
+    private const val KEY_LAST_LOCATION = "KEY_LAST_LOCATION"
+    fun isFirst(context: Context): Boolean {
+        return getBoolean(context, KEY_IS_FIRST)
     }
 
-    public static void setFirst(Context context) {
-        putBoolean(context, KEY_IS_FIRST, false);
+    fun setFirst(context: Context) {
+        putBoolean(context, KEY_IS_FIRST, false)
     }
 
-    public static Location getLastLocation(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE);
-        String jsonString = sharedPreferences.getString(KEY_LAST_LOCATION, "");
-        if (!jsonString.isEmpty()) {
-            return new Gson().fromJson(jsonString, Location.class);
+    fun getLastLocation(context: Context): Location? {
+        val sharedPreferences =
+            context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        val jsonString = sharedPreferences.getString(KEY_LAST_LOCATION, "")
+        return if (!jsonString!!.isEmpty()) {
+            Gson().fromJson(
+                jsonString,
+                Location::class.java
+            )
         } else {
-            return null;
+            null
         }
     }
 
-    public static void setLastLocation(Context context, Location location) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(KEY_LAST_LOCATION, new Gson().toJson(location));
-        editor.apply();
+    fun setLastLocation(context: Context, location: Location?) {
+        val sharedPreferences =
+            context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(KEY_LAST_LOCATION, Gson().toJson(location))
+        editor.apply()
     }
 
-    public static boolean getBoolean(Context context, String key) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean(key, true);
+    fun getBoolean(context: Context, key: String?): Boolean {
+        val sharedPreferences =
+            context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean(key, true)
     }
 
-    public static void putBoolean(Context context, String key, boolean value) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
+    fun putBoolean(context: Context, key: String?, value: Boolean) {
+        val sharedPreferences =
+            context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(key, value)
+        editor.apply()
     }
 }

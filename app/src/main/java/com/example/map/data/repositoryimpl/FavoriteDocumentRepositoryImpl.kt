@@ -1,38 +1,27 @@
-package com.example.map.data.repositoryimpl;
+package com.example.map.data.repositoryimpl
 
-import com.example.map.data.local.dao.FavoriteDocumentDao;
-import com.example.map.data.local.model.DocumentEntity;
-import com.example.map.domain.repository.FavoriteDocumentRepository;
+import com.example.map.data.local.dao.FavoriteDocumentDao
+import com.example.map.data.local.model.DocumentEntity
+import com.example.map.domain.repository.FavoriteDocumentRepository
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
 
-import java.util.List;
-
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.Flowable;
-
-public class FavoriteDocumentRepositoryImpl implements FavoriteDocumentRepository {
-    private final FavoriteDocumentDao dao;
-
-    public FavoriteDocumentRepositoryImpl(FavoriteDocumentDao dao) {
-        this.dao = dao;
+class FavoriteDocumentRepositoryImpl(
+    private val dao: FavoriteDocumentDao
+) : FavoriteDocumentRepository {
+    override fun getAll(): Flowable<List<DocumentEntity>> {
+        return dao.getAll()
     }
 
-    @Override
-    public Flowable<List<DocumentEntity>> getAll() {
-        return dao.getAll();
+    override fun get(id: String): Flowable<DocumentEntity> {
+        return dao.get(id)
     }
 
-    @Override
-    public Flowable<DocumentEntity> get(String id) {
-        return dao.get(id);
+    override fun insert(documentEntity: DocumentEntity): Completable {
+        return dao.insert(documentEntity)
     }
 
-    @Override
-    public Completable insert(DocumentEntity documentEntity) {
-        return dao.insert(documentEntity);
-    }
-
-    @Override
-    public Completable delete(DocumentEntity documentEntity) {
-        return dao.delete(documentEntity);
+    override fun delete(documentEntity: DocumentEntity): Completable {
+        return dao.delete(documentEntity)
     }
 }

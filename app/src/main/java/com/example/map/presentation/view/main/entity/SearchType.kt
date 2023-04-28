@@ -1,59 +1,34 @@
-package com.example.map.presentation.view.main.entity;
+package com.example.map.presentation.view.main.entity
 
-public enum SearchType {
+enum class SearchType(val type: String) {
     // category
     FOOD("FD6"),
     CAFE("CE7"),
     CONVENIENCE("CS2"),
-
     // keyword
     FLOWER("꽃집");
 
-    private String name;
+    val isCategory: Boolean
+        get() = this == FOOD || this == CAFE || this == CONVENIENCE
 
-    SearchType(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isCategory() {
-        return this == FOOD || this == CAFE || this == CONVENIENCE;
-    }
-
-    public MapViewMode toMapViewMode() {
-        switch (this) {
-            case FOOD:
-                return MapViewMode.SEARCH_FOOD;
-            case CAFE:
-                return MapViewMode.SEARCH_CAFE;
-            case CONVENIENCE:
-                return MapViewMode.SEARCH_CONVENIENCE;
-            case FLOWER:
-                return MapViewMode.SEARCH_FLOWER;
-            default:
-                return MapViewMode.DEFAULT;
+    fun toMapViewMode(): MapViewMode {
+        return when (this) {
+            FOOD -> MapViewMode.SEARCH_FOOD
+            CAFE -> MapViewMode.SEARCH_CAFE
+            CONVENIENCE -> MapViewMode.SEARCH_CONVENIENCE
+            FLOWER -> MapViewMode.SEARCH_FLOWER
         }
     }
 
-    public static SearchType from(MapViewMode mapViewMode) {
-        switch (mapViewMode) {
-            case SEARCH_FOOD:
-                return SearchType.FOOD;
-            case SEARCH_CAFE:
-                return SearchType.CAFE;
-            case SEARCH_CONVENIENCE:
-                return SearchType.CONVENIENCE;
-            case SEARCH_FLOWER:
-                return SearchType.FLOWER;
-            default:
-                return null;
+    companion object {
+        fun from(mapViewMode: MapViewMode): SearchType? {
+            return when (mapViewMode) {
+                MapViewMode.SEARCH_FOOD -> FOOD
+                MapViewMode.SEARCH_CAFE -> CAFE
+                MapViewMode.SEARCH_CONVENIENCE -> CONVENIENCE
+                MapViewMode.SEARCH_FLOWER -> FLOWER
+                else -> null
+            }
         }
     }
 }
