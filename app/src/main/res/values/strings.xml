@@ -1,0 +1,76 @@
+<resources>
+    <string name="app_name">지도 예제앱</string>
+
+    <string name="AlertDialog_message_request_location_permission">현재 위치를 확인하시려면 위치 권한을 허용해 주세요.</string>
+    <string name="AlertDialog_button_ok">확인</string>
+    <string name="AlertDialog_button_cancel">취소</string>
+
+    <string name="Toast_location_permission_denied">@string/AlertDialog_message_request_location_permission</string>
+    <string name="Toast_search_failure">검색에 실패했습니다. 잠시 후 다시 시도해 주세요.</string>
+    <string name="Toast_empty_search">검색 결과가 없습니다.</string>
+    <string name="Toast_empty_favorite">즐겨찾기 결과가 없습니다.</string>
+    <string name="Toast_empty_query">검색어를 입력해주세요.</string>
+    <string name="Toast_get_show_list_failure">공연 조회에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
+    <string name="Toast_get_tasty_list_failure">맛집 조회에 실패했습니다. 잠시 후 다시 시도해주세요.</string>
+
+    <string name="ContentDescription_fab_tracking">위치 추적 버튼</string>
+    <string name="ContentDescription_list_mode">목록 모드 버튼</string>
+    <string name="ContentDescription_keyword">키워드 등록 버튼</string>
+
+    <string name="MainActivity_search_bar">주소 검색</string>
+    <string name="MainActivity_food">맛집</string>
+    <string name="MainActivity_cafe">카페</string>
+    <string name="MainActivity_convenience">편의점</string>
+    <string name="MainActivity_flower">꽃집</string>
+    <string name="MainActivity_favorite">즐겨찾기</string>
+
+    <string name="MainActivity_my_apt">내 아파트</string>
+    <string name="MainActivity_parking">주차안내</string>
+    <string name="MainActivity_information">맞춤정보</string>
+    <string name="MainActivity_lecture">특강안내</string>
+    <string name="MainActivity_my_info">내정보</string>
+
+    <string name="DocumentViewHolder_rate">평점 %1$s</string>
+
+    <string name="SearchActivity_title">@string/MainActivity_search_bar</string>
+    <string name="SearchActivity_empty">검색 결과가 없습니다.</string>
+
+    <string name="FavoriteActivity_title">@string/MainActivity_favorite</string>
+    <string name="FavoriteActivity_empty">즐겨찾기한 장소가 없습니다.</string>
+
+    <string name="ApartmentActivity_name">슬기로운 아파트 1단지</string>
+    <string name="ApartmentActivity_address">대구광역시 수성구 동원로 100</string>
+    <string name="ApartmentActivity_announcement">공지사항</string>
+    <string name="ApartmentActivity_communication">소통공간</string>
+    <string name="ApartmentActivity_schedule">주요일정</string>
+    <string name="ApartmentActivity_broadcast">아파트 방송</string>
+    <string name="ApartmentActivity_vote">주민투표</string>
+    <string name="ApartmentActivity_poll">설문조사</string>
+    <string name="ApartmentActivity_complain">아파트 민원</string>
+    <string name="ApartmentActivity_contact">연락처</string>
+    <string name="ApartmentActivity_suggestion">건의사항</string>
+    <string name="ApartmentActivity_visit">방문차량등록</string>
+    <string name="ApartmentActivity_board">게시판</string>
+
+    <string name="ParkingActivity_title">@string/MainActivity_parking</string>
+    <string name="ParkingActivity_parking_count">%1$s / %2$s</string>
+
+    <string name="InformationActivity_title">@string/MainActivity_information</string>
+    <string name="InformationActivity_show">공연</string>
+    <string name="InformationActivity_tasty">맛집</string>
+
+    <string name="ShowInformationViewHolder_date">%1$s - %2$s</string>
+
+    <string name="LectureActivity_search_bar">@string/MainActivity_lecture</string>
+    <string name="LectureActivity_1km">1km 이내</string>
+    <string name="LectureActivity_3km">3km 이내</string>
+    <string name="LectureActivity_5km">5km 이내</string>
+    <string name="LectureActivity_10km">10km 이내</string>
+
+    <string name="LectureViewHolder_time">%1$s - %2$s</string>
+    <string name="LectureViewHolder_register_end">신청마감</string>
+    <string name="LectureViewHolder_register_review">후기등록</string>
+    <string name="LectureViewHolder_information">자세히&#160;&#160;</string>
+    <string name="LectureViewHolder_register">신청하기</string>
+
+</resources>
