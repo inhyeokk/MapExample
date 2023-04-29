@@ -1,12 +1,11 @@
 package com.example.map.domain.repository
 
 import com.example.map.data.local.model.DocumentEntity
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.Flow
 
 interface FavoriteDocumentRepository {
-    fun getAll(): Flowable<List<DocumentEntity>>
-    fun get(id: String): Flowable<DocumentEntity>
-    fun insert(documentEntity: DocumentEntity): Completable
-    fun delete(documentEntity: DocumentEntity): Completable
+    fun getAll(): Flow<List<DocumentEntity>>
+    fun get(id: String): Flow<DocumentEntity>
+    suspend fun insert(documentEntity: DocumentEntity)
+    suspend fun delete(documentEntity: DocumentEntity)
 }

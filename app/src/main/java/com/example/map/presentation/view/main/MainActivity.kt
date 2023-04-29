@@ -290,7 +290,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         binding.flContainer.removeView(mapView)
         mapView = null
-        viewModel.onDestroy()
         super.onDestroy()
     }
 }

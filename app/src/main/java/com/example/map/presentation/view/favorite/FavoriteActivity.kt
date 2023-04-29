@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.example.map.databinding.ActivityFavoriteBinding
+import com.example.map.extension.launchWithLifecycle
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.view.main.adapter.DocumentAdapter
 import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHolder
@@ -48,7 +49,7 @@ class FavoriteActivity : AppCompatActivity() {
         binding: ActivityFavoriteBinding,
         documentAdapter: DocumentAdapter
     ) {
-        viewModel.favoriteDocumentListLiveData.observe(this) {
+        viewModel.favoriteDocumentListFlow.launchWithLifecycle(activity = this) {
             documentAdapter.setItemList(it)
             binding.tvEmpty.isVisible = it.isEmpty()
         }

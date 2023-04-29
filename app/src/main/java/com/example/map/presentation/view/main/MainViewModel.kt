@@ -1,6 +1,7 @@
 package com.example.map.presentation.view.main
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.example.map.SingleLiveEvent
 import com.example.map.base.BaseViewModel
 import com.example.map.data.remote.model.LocalSearchResult
@@ -15,8 +16,10 @@ import com.example.map.presentation.view.main.entity.MapViewMode
 import com.example.map.presentation.view.main.entity.SearchType
 import com.example.map.presentation.view.main.entity.SelectPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 import javax.inject.Inject
 
@@ -134,17 +137,15 @@ class MainViewModel @Inject constructor(
     }
 
     fun addFavoriteDocument(document: Document) {
-        compositeDisposable.add(favoriteDocumentRepository.insert(document.toEntity())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({}) { })
+        viewModelScope.launch {
+            favoriteDocumentRepository.insert(document.toEntity())
+        }
     }
 
     fun removeFavoriteDocument(document: Document) {
-        compositeDisposable.add(favoriteDocumentRepository.delete(document.toEntity())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({}) { })
+        viewModelScope.launch {
+            favoriteDocumentRepository.delete(document.toEntity())
+        }
     }
 
     fun selectDocument(position: Int) {
@@ -158,24 +159,22 @@ class MainViewModel @Inject constructor(
     }
 
     init {
-        compositeDisposable.add(favoriteDocumentRepository.getAll()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                val favoriteDocumentList = it.map { entity ->
+        viewModelScope.launch {
+            favoriteDocumentRepository.getAll().distinctUntilChanged().map {
+                it.map { entity ->
                     Document.fromDocumentEntity(entity)
                 }
+            }.collectLatest {
                 favoriteDocumentListCache.clear()
-                favoriteDocumentListCache.addAll(favoriteDocumentList)
+                favoriteDocumentListCache.addAll(it)
                 val result = documentResultEvent.value
                 if (result != null) {
                     setDocumentListWithFavorite(
-                        result.documentList, favoriteDocumentList, false
+                        result.documentList, it, false
                     )
                 }
-            }) {
-
-            })
+            }
+        }
     }
 
     companion object {
