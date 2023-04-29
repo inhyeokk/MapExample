@@ -9,9 +9,11 @@ import com.example.map.databinding.ActivityFavoriteBinding
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.view.main.adapter.DocumentAdapter
 import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHolder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class FavoriteActivity : AppCompatActivity() {
-    private val viewModel by viewModels<FavoriteViewModel> { FavoriteViewModel.Factory }
+    private val viewModel by viewModels<FavoriteViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityFavoriteBinding.inflate(layoutInflater)

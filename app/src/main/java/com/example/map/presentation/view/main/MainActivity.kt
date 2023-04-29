@@ -2,7 +2,6 @@ package com.example.map.presentation.view.main
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,7 +14,6 @@ import com.example.map.extension.isEnabled
 import com.example.map.extension.setVisible
 import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
-import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
 import com.example.map.presentation.view.favorite.FavoriteActivity
 import com.example.map.presentation.view.main.adapter.DocumentAdapter
@@ -23,30 +21,28 @@ import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHol
 import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
 import com.example.map.presentation.view.main.entity.SearchType
-import com.example.map.presentation.view.main.entity.SelectPosition
 import com.example.map.presentation.view.main.mapview.BasicMapViewEventListener
 import com.example.map.presentation.view.main.mapview.BasicPOIItemEventListener
 import com.example.map.presentation.view.search.SearchActivity
 import com.example.map.util.AccessFineLocationUtil
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.*
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
-import net.daum.mf.map.api.MapView.POIItemEventListener
 import java.util.*
-import java.util.function.Consumer
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var mapView: MapView? = null
     private var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>? = null
-    private val viewModel by viewModels<MainViewModel> { MainViewModel.Factory }
+    private val viewModel by viewModels<MainViewModel>()
     private val searchResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-            if (result.resultCode == RESULT_OK && result.data != null && result.data!!.hasExtra(
-                        SearchActivity.SEARCH_RESULT
-                    )
-            ) {
-                setSearchResultInMapView((result.data!!.getSerializableExtra(SearchActivity.SEARCH_RESULT) as SearchResult?)!!)
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                it.data?.let { data ->
+                    setSearchResultInMapView(data.getSerializableExtra(SearchActivity.SEARCH_RESULT) as SearchResult)
+                }
             }
         }
 
@@ -57,20 +53,19 @@ class MainActivity : AppCompatActivity() {
         mapView!!.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint))
     }
 
-    private val mapViewEventListener: MapView.MapViewEventListener =
-        object : BasicMapViewEventListener() {
-            override fun onMapViewDragStarted(mapView: MapView, mapPoint: MapPoint) {
-                viewModel.disableTrackingMode()
-            }
+    private val mapViewEventListener = object : BasicMapViewEventListener() {
+        override fun onMapViewDragStarted(mapView: MapView, mapPoint: MapPoint) {
+            viewModel.disableTrackingMode()
+        }
 
-            override fun onMapViewDragEnded(mapView: MapView, mapPoint: MapPoint) {
-                val searchType = SearchType.from(viewModel.mapViewMode)
-                if (searchType != null) {
-                    requestSearch(searchType, false)
-                }
+        override fun onMapViewDragEnded(mapView: MapView, mapPoint: MapPoint) {
+            val searchType = SearchType.from(viewModel.mapViewMode)
+            if (searchType != null) {
+                requestSearch(searchType, false)
             }
         }
-    private val poiItemEventListener: POIItemEventListener = object : BasicPOIItemEventListener() {
+    }
+    private val poiItemEventListener = object : BasicPOIItemEventListener() {
         override fun onPOIItemSelected(mapView: MapView, mapPOIItem: MapPOIItem) {
             if (viewModel.mapViewMode.isNotDefault) {
                 selectDocumentBy(mapPOIItem)
@@ -81,9 +76,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun selectDocumentBy(mapPOIItem: MapPOIItem) {
         val documentList = viewModel.requireDocumentList
-        val document = documentList.find { document1 -> document1.mapPOIItem == mapPOIItem }
-        if (document != null) {
-            val index = documentList.indexOf(document)
+        documentList.find { it.mapPOIItem == mapPOIItem }?.let {
+            val index = documentList.indexOf(it)
             binding.rvDocument.scrollToPosition(index)
             viewModel.selectDocument(index)
         }

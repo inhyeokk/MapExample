@@ -1,18 +1,10 @@
 package com.example.map.presentation.view.main
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.example.map.MyApplication
 import com.example.map.SingleLiveEvent
 import com.example.map.base.BaseViewModel
-import com.example.map.data.local.database.AppDatabase
 import com.example.map.data.remote.model.LocalSearchResult
-import com.example.map.data.repositoryimpl.FavoriteDocumentRepositoryImpl
-import com.example.map.data.repositoryimpl.LocalSearchRepositoryImpl
+import com.example.map.domain.repository.FavoriteDocumentRepository
 import com.example.map.domain.repository.LocalSearchRepository
 import com.example.map.domain.request.SearchByCategoryRequest
 import com.example.map.domain.request.SearchByKeywordRequest
@@ -22,15 +14,18 @@ import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
 import com.example.map.presentation.view.main.entity.SearchType
 import com.example.map.presentation.view.main.entity.SelectPosition
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
+import javax.inject.Inject
 
-class MainViewModel(
-    private val handle: SavedStateHandle, appDatabase: AppDatabase
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val handle: SavedStateHandle,
+    private val localSearchRepository: LocalSearchRepository,
+    private val favoriteDocumentRepository: FavoriteDocumentRepository
 ) : BaseViewModel() {
-    private val localSearchRepository: LocalSearchRepository = LocalSearchRepositoryImpl()
-    private val favoriteDocumentRepository = FavoriteDocumentRepositoryImpl(appDatabase.favoriteDocumentDao())
     val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
     val trackingModeLiveData = handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
@@ -188,12 +183,5 @@ class MainViewModel(
         private const val LIST_MODE = "LIST_MODE"
         private const val TRACKING_MODE = "TRACKING_MODE"
         private const val TEMP_TRACKING_MODE = "TEMP_TRACKING_MODE"
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val app = (this[APPLICATION_KEY] as MyApplication)
-                val savedStateHandle = createSavedStateHandle()
-                MainViewModel(savedStateHandle, AppDatabase.getInstance(app.applicationContext))
-            }
-        }
     }
 }

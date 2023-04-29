@@ -8,10 +8,11 @@
 </div>
 
 ## Libraries
+
 - Jetpack
-  - [Room](https://developer.android.com/jetpack/androidx/releases/room?hl=ko)
-  - [SavedState](https://developer.android.com/jetpack/androidx/releases/savedstate?hl=ko)
+    - [Room](https://developer.android.com/jetpack/androidx/releases/room?hl=ko)
+    - [Hilt](https://developer.android.com/jetpack/androidx/releases/hilt?hl=ko)
 
 - Kakao
-  - [Map](https://apis.map.kakao.com/android/guide/)
-  - [Local](https://developers.kakao.com/docs/latest/ko/local/dev-guide)
+    - [Map](https://apis.map.kakao.com/android/guide/)
+    - [Local](https://developers.kakao.com/docs/latest/ko/local/dev-guide)

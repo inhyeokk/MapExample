@@ -1,19 +1,22 @@
 package com.example.map.data.repositoryimpl
 
-import com.example.map.data.remote.api.KakaoLocalServiceFactory
 import com.example.map.data.remote.api.LocalSearchApi
 import com.example.map.data.remote.model.LocalSearchResult
 import com.example.map.domain.repository.LocalSearchRepository
 import com.example.map.domain.request.SearchByAddressRequest
 import com.example.map.domain.request.SearchByCategoryRequest
 import com.example.map.domain.request.SearchByKeywordRequest
+import dagger.hilt.android.scopes.ViewModelScoped
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.function.Consumer
+import javax.inject.Inject
 
-class LocalSearchRepositoryImpl : LocalSearchRepository {
-    private val localSearchApi = KakaoLocalServiceFactory.create(LocalSearchApi::class.java)
+@ViewModelScoped
+class LocalSearchRepositoryImpl @Inject constructor(
+    private val localSearchApi: LocalSearchApi
+) : LocalSearchRepository {
 
     override fun searchByAddress(
         request: SearchByAddressRequest,

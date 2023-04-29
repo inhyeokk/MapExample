@@ -12,11 +12,13 @@ import com.example.map.databinding.ActivitySearchBinding
 import com.example.map.extension.showToast
 import com.example.map.presentation.model.SearchResult
 import com.example.map.presentation.view.search.adapter.SearchResultAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.function.Consumer
 
+@AndroidEntryPoint
 class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
-    private val viewModel: SearchViewModel by viewModels()
+    private val viewModel by viewModels<SearchViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)

@@ -7,7 +7,7 @@ import com.example.map.presentation.view.main.adapter.viewholder.DocumentViewHol
 
 class DocumentAdapter(
     private val onClickListener: DocumentViewHolder.OnClickListener
-    ) : RecyclerView.Adapter<DocumentViewHolder>() {
+) : RecyclerView.Adapter<DocumentViewHolder>() {
     private val documentList = ArrayList<Document>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DocumentViewHolder {
         return DocumentViewHolder.create(parent, onClickListener)
