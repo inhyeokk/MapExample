@@ -9,27 +9,22 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MyApplication"
-        android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        android:usesCleartextTraffic="true">
         <activity
-            android:name=".presentation.view.splash.SplashActivity"
-            android:theme="@style/MyApplication.Splash"
-            android:exported="true">
+            android:name=".presentation.view.main.MainActivity"
+            android:exported="true"
+            android:theme="@style/MyApplication.Starting">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".presentation.view.main.MainActivity"
-            android:exported="false" />
         <activity
             android:name=".presentation.view.search.SearchActivity"
             android:exported="false" />
