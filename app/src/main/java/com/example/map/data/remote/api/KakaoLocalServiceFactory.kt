@@ -1,8 +1,9 @@
 package com.example.map.data.remote.api
 
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -22,15 +23,20 @@ object KakaoLocalServiceFactory {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder().setFieldNamingPolicy(
+                        FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES
+                    ).create()
+                )
+            ).build()
             .create(apiClass)
     }
 
     private class HeaderInterceptor : Interceptor {
         @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response {
-            val request: Request = chain.request().newBuilder()
+            val request = chain.request().newBuilder()
                 .addHeader("Authorization", "KakaoAK $REST_API_KEY")
                 .build()
             return chain.proceed(request)
