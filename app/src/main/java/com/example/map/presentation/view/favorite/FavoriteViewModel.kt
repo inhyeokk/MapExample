@@ -18,15 +18,11 @@ class FavoriteViewModel @Inject constructor(
         it.map { entity -> Document.fromDocumentEntity(entity) }
     }
 
-    fun addFavoriteDocument(document: Document) {
-        viewModelScope.launch {
-            favoriteDocumentRepository.insert(document.toEntity())
-        }
+    fun addFavoriteDocument(document: Document) = viewModelScope.launch {
+        favoriteDocumentRepository.insert(document.toEntity())
     }
 
-    fun removeFavoriteDocument(document: Document) {
-        viewModelScope.launch {
-            favoriteDocumentRepository.delete(document.toEntity())
-        }
+    fun removeFavoriteDocument(document: Document) = viewModelScope.launch {
+        favoriteDocumentRepository.delete(document.toEntity())
     }
 }

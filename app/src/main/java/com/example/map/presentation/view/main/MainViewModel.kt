@@ -30,7 +30,8 @@ class MainViewModel @Inject constructor(
     private val favoriteDocumentRepository: FavoriteDocumentRepository
 ) : BaseViewModel() {
     val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
-    val trackingModeLiveData = handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
+    val trackingModeLiveData =
+        handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
     var documentResultEvent = SingleLiveEvent<DocumentResult>()
     private val favoriteDocumentListCache: MutableList<Document> = ArrayList()
@@ -92,17 +93,23 @@ class MainViewModel @Inject constructor(
 
     val requireDocumentList get() = documentResultEvent.value!!.documentList
 
-    fun search(searchType: SearchType, x: String, y: String, isMoveCamera: Boolean) {
+    fun search(
+        searchType: SearchType, x: String, y: String, isMoveCamera: Boolean
+    ) = viewModelScope.launch {
         if (searchType.isCategory) {
             val request = SearchByCategoryRequest(searchType.type, x, y, 5000)
-            localSearchRepository.searchByCategory(request, {
+            localSearchRepository.searchByCategory(request).onSuccess {
                 handleSearchResult(searchType, it, isMoveCamera)
-            }) { setFailureOrEmpty(MainAction.SEARCH_FAILURE) }
+            }.onFailure {
+                setFailureOrEmpty(MainAction.SEARCH_FAILURE)
+            }
         } else { // keyword
             val request = SearchByKeywordRequest(searchType.type, x, y, 5000)
-            localSearchRepository.searchByKeyword(request, {
+            localSearchRepository.searchByKeyword(request).onSuccess {
                 handleSearchResult(searchType, it, isMoveCamera)
-            }) { setFailureOrEmpty(MainAction.SEARCH_FAILURE) }
+            }.onFailure {
+                setFailureOrEmpty(MainAction.SEARCH_FAILURE)
+            }
         }
     }
 
@@ -136,16 +143,12 @@ class MainViewModel @Inject constructor(
         mainActionEvent.value = mainAction
     }
 
-    fun addFavoriteDocument(document: Document) {
-        viewModelScope.launch {
-            favoriteDocumentRepository.insert(document.toEntity())
-        }
+    fun addFavoriteDocument(document: Document) = viewModelScope.launch {
+        favoriteDocumentRepository.insert(document.toEntity())
     }
 
-    fun removeFavoriteDocument(document: Document) {
-        viewModelScope.launch {
-            favoriteDocumentRepository.delete(document.toEntity())
-        }
+    fun removeFavoriteDocument(document: Document) = viewModelScope.launch {
+        favoriteDocumentRepository.delete(document.toEntity())
     }
 
     fun selectDocument(position: Int) {

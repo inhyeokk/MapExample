@@ -4,24 +4,11 @@ import com.example.map.data.remote.model.LocalSearchResult
 import com.example.map.domain.request.SearchByAddressRequest
 import com.example.map.domain.request.SearchByCategoryRequest
 import com.example.map.domain.request.SearchByKeywordRequest
-import java.util.function.Consumer
 
 interface LocalSearchRepository {
-    fun searchByAddress(
-        request: SearchByAddressRequest,
-        onSuccess: Consumer<LocalSearchResult>,
-        onFailure: Consumer<Throwable>
-    )
+    suspend fun searchByAddress(request: SearchByAddressRequest): Result<LocalSearchResult>
 
-    fun searchByCategory(
-        request: SearchByCategoryRequest,
-        onSuccess: Consumer<LocalSearchResult>,
-        onFailure: Consumer<Throwable>
-    )
+    suspend fun searchByCategory(request: SearchByCategoryRequest): Result<LocalSearchResult>
 
-    fun searchByKeyword(
-        request: SearchByKeywordRequest,
-        onSuccess: Consumer<LocalSearchResult>,
-        onFailure: Consumer<Throwable>
-    )
+    suspend fun searchByKeyword(request: SearchByKeywordRequest): Result<LocalSearchResult>
 }
