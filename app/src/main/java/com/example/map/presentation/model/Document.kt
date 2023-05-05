@@ -8,7 +8,7 @@ import java.util.*
 data class Document(
     val id: String,
     val placeName: String,
-    val categoryName: String,
+    private val categoryName: String,
     val roadAddressName: String,
     private val x: String,
     private val y: String,
@@ -17,6 +17,13 @@ data class Document(
     var isSelected: Boolean = false,
     var mapPOIItem: MapPOIItem? = null
 ) {
+    fun category(): String {
+        val category = categoryName.split(">".toRegex()).dropLastWhile {
+            it.isEmpty()
+        }.toTypedArray().lastOrNull()
+        return category ?: categoryName
+    }
+
     fun x() = x.toDouble()
     fun y() = y.toDouble()
 

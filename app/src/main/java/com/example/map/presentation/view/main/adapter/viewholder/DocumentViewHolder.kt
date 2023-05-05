@@ -14,13 +14,7 @@ class DocumentViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(document: Document, position: Int) {
         binding.tvName.text = document.placeName
-        var category = document.categoryName.split(">".toRegex()).dropLastWhile {
-            it.isEmpty()
-        }.toTypedArray().lastOrNull()
-        if (category == null) {
-            category = document.categoryName
-        }
-        binding.tvCategory.text = category
+        binding.tvCategory.text = document.category()
         binding.tvAddress.text = document.roadAddressName
         binding.tvRate.text = itemView.context.getString(
             R.string.DocumentViewHolder_rate, String.format(
