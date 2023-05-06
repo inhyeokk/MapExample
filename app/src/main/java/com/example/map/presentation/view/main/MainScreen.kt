@@ -181,7 +181,7 @@ fun ColumnScope.MainFloatingActionButton(
 }
 
 @Composable
-fun BottomSheet(
+fun MainBottomSheet(
     state: LazyListState,
     documentList: List<Document>,
     selectedPosition: Int,

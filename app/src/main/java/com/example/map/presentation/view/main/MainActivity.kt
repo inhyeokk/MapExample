@@ -2,22 +2,23 @@ package com.example.map.presentation.view.main
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.isVisible
 import com.example.map.R
-import com.example.map.databinding.ActivityMainBinding
 import com.example.map.extension.isEnabled
-import com.example.map.extension.setVisible
 import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
@@ -31,7 +32,6 @@ import com.example.map.presentation.view.main.mapview.BasicMapViewEventListener
 import com.example.map.presentation.view.main.mapview.BasicPOIItemEventListener
 import com.example.map.presentation.view.search.SearchActivity
 import com.example.map.util.AccessFineLocationUtil
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.*
@@ -40,7 +40,6 @@ import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
     private var mapView: MapView? = null
     private val viewModel by viewModels<MainViewModel>()
     private val searchResultLauncher =
@@ -88,79 +87,102 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater).apply {
-            cvTop.setContent {
+        setContent {
+            MaterialTheme {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
-                val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = CurrentLocationTrackingMode.TrackingModeOff)
                 val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
-                Column {
-                    MainTopAppBar(
-                        mapViewMode = mapViewMode,
-                        onBackClick = { onBackPressed() },
-                        onSearchClick = { startSearchActivity() },
-                    )
-                    MainButtonRow(
-                        mapViewMode = mapViewMode,
-                        onFoodClick = { requestSearch(SearchType.FOOD, true) },
-                        onCafeClick = { requestSearch(SearchType.CAFE, true) },
-                        onConvenienceClick = { requestSearch(SearchType.CONVENIENCE, true) },
-                        onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
-                        onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
-                    )
-                    MainFloatingActionButton(
-                        mapViewMode = mapViewMode,
-                        trackingMode = trackingMode,
-                        listMode = listMode,
-                        onTrackingModeClick = { viewModel.toggleTrackingMode() },
-                        onListModeClick = { viewModel.toggleListMode() },
-                    )
-                }
-            }
-            cvBottomSheet.setContent {
-                val lazyListState = rememberLazyListState()
                 val coroutineScope = rememberCoroutineScope()
-                val documentResult by viewModel.documentResultEvent.observeAsState(initial = DocumentResult.empty())
-                val selectPositionEvent by viewModel.selectPositionEvent.observeAsState(initial = SelectPosition())
-                if (selectPositionEvent.position != -1 && selectPositionEvent.selectedByMap) {
-                    LaunchedEffect(Unit) {
-                        coroutineScope.launch {
-                            lazyListState.scrollToItem(selectPositionEvent.position)
+                val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+                    bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+                )
+                LaunchedEffect(Unit) { // TODO 수정 필요
+                    coroutineScope.launch {
+                        if (mapViewMode.isNotDefault) bottomSheetScaffoldState.bottomSheetState.expand()
+                        else bottomSheetScaffoldState.bottomSheetState.collapse()
+                    }
+                }
+                BottomSheetScaffold(
+                    sheetContent = {
+                        val lazyListState = rememberLazyListState()
+                        val documentResult by viewModel.documentResultEvent.observeAsState(initial = DocumentResult.empty())
+                        val selectPositionEvent by viewModel.selectPositionEvent.observeAsState(
+                            initial = SelectPosition()
+                        )
+                        if (selectPositionEvent.position != -1 && selectPositionEvent.selectedByMap) {
+                            LaunchedEffect(Unit) {
+                                coroutineScope.launch {
+                                    lazyListState.scrollToItem(selectPositionEvent.position)
+                                }
+                            }
+                        }
+                        MainBottomSheet(
+                            state = lazyListState,
+                            documentList = documentResult.documentList,
+                            selectedPosition = selectPositionEvent.position,
+                            onDocumentClick = { document, position ->
+                                onDocumentClick(
+                                    document, position
+                                )
+                            },
+                            onFavoriteClick = { viewModel.addFavoriteDocument(it) },
+                            onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) },
+                        )
+                    },
+                    scaffoldState = bottomSheetScaffoldState,
+                    sheetPeekHeight = 0.dp,
+                    sheetGesturesEnabled = false,
+                ) {
+                    val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = CurrentLocationTrackingMode.TrackingModeOff)
+                    Box {
+                        AndroidView(factory = { context ->
+                            MapView(context).apply {
+                                setMapViewEventListener(this@MainActivity.mapViewEventListener)
+                                setPOIItemEventListener(poiItemEventListener)
+                            }.also {
+                                mapView = it
+                            }
+                        })
+                        Column {
+                            MainTopAppBar(
+                                mapViewMode = mapViewMode,
+                                onBackClick = { onBackPressed() },
+                                onSearchClick = { startSearchActivity() },
+                            )
+                            MainButtonRow(
+                                mapViewMode = mapViewMode,
+                                onFoodClick = { requestSearch(SearchType.FOOD, true) },
+                                onCafeClick = { requestSearch(SearchType.CAFE, true) },
+                                onConvenienceClick = {
+                                    requestSearch(
+                                        SearchType.CONVENIENCE, true
+                                    )
+                                },
+                                onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
+                                onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
+                            )
+                            MainFloatingActionButton(
+                                mapViewMode = mapViewMode,
+                                trackingMode = trackingMode,
+                                listMode = listMode,
+                                onTrackingModeClick = { viewModel.toggleTrackingMode() },
+                                onListModeClick = { viewModel.toggleListMode() },
+                            )
                         }
                     }
                 }
-                BottomSheet(
-                    state = lazyListState,
-                    documentList = documentResult.documentList,
-                    selectedPosition = selectPositionEvent.position,
-                    onDocumentClick = { document, position -> onDocumentClick(document, position) },
-                    onFavoriteClick = { viewModel.addFavoriteDocument(it) },
-                    onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) },
-                )
             }
         }
-        setContentView(binding.root)
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.cvBottomSheet).apply {
-            isDraggable = false
-        }
-        initMapView(binding)
-        observeViewModel(binding, bottomSheetBehavior)
+        observeViewModel()
     }
 
     private fun onDocumentClick(document: Document, position: Int) {
         viewModel.selectDocument(position, false)
         mapView!!.selectPOIItem(document.mapPOIItem, true)
         mapView!!.moveCamera(CameraUpdateFactory.newMapPoint(document.mapPOIItem!!.mapPoint))
-    }
-
-    private fun initMapView(binding: ActivityMainBinding) {
-        mapView = MapView(this).apply {
-            setMapViewEventListener(this@MainActivity.mapViewEventListener)
-            setPOIItemEventListener(poiItemEventListener)
-        }
-        binding.flContainer.addView(mapView)
     }
 
     private fun startSearchActivity() {
@@ -181,30 +203,24 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun observeViewModel(
-        binding: ActivityMainBinding, bottomSheetBehavior: BottomSheetBehavior<ComposeView>
-    ) {
+    private fun observeViewModel() {
         viewModel.mapViewModeLiveData.observe(this) {
-            binding.cvBottomSheet.isVisible = it.isNotDefault
             if (it.isDefault) {
-                mapView!!.removeAllPOIItems()
+                mapView?.removeAllPOIItems() // TODO 수정 필요
             }
         }
         viewModel.trackingModeLiveData.observe(this) {
             if (it.isEnabled()) {
                 AccessFineLocationUtil.checkPermission(this, {
-                    mapView!!.currentLocationTrackingMode = it
+                    mapView?.currentLocationTrackingMode = it // TODO 수정 필요
                 }, {
                     viewModel.tempTrackingModeForEnable = it
                 }) {
                     showToast(R.string.Toast_location_permission_denied)
                 }
             } else {
-                mapView!!.currentLocationTrackingMode = it
+                mapView?.currentLocationTrackingMode = it
             }
-        }
-        viewModel.listModeLiveData.observe(this) {
-            bottomSheetBehavior.setVisible(it.isList)
         }
         viewModel.documentResultEvent.observe(this) {
             mapView!!.removeAllPOIItems()
@@ -266,7 +282,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        binding.flContainer.removeView(mapView)
         mapView = null
         super.onDestroy()
     }
