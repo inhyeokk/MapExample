@@ -1,17 +1,14 @@
 package com.example.map.presentation.view.favorite
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,32 +23,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.map.R
 import com.example.map.presentation.model.Document
+import com.example.map.presentation.view.CloseButton
+import com.example.map.presentation.view.CommonScaffold
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteScreen(
     documentList: List<Document>, onCloseClick: () -> Unit, onUnFavoriteClick: (Document) -> Unit
 ) {
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(8.dp),
-        topBar = {
-            TopAppBar(modifier = Modifier.border(
-                width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(4.dp)
-            ), navigationIcon = {
-                IconButton(onCloseClick) {
-                    Image(imageVector = Icons.Default.Close, contentDescription = "닫기")
-                }
-            }, title = {
-                Text(
-                    text = stringResource(
-                        id = R.string.FavoriteActivity_title
-                    ), fontSize = 16.sp, color = Color.Black
-                )
-            })
+    CommonScaffold(
+        navigationIcon = {
+            CloseButton(onCloseClick)
+        },
+        title = {
+            Text(
+                text = stringResource(
+                    id = R.string.FavoriteActivity_title
+                ), fontSize = 16.sp, color = Color.Black
+            )
         },
     ) {
         FavoriteDocumentList(
