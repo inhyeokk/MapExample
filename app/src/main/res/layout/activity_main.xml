@@ -29,52 +29,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:translationZ="8dp"
-            app:layout_constraintBottom_toTopOf="@id/hsv_top_btn"
+            app:layout_constraintBottom_toTopOf="@id/fab_tracking"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <HorizontalScrollView
-            android:id="@+id/hsv_top_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:scrollbars="none"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cv_top">
-
-            <LinearLayout
-                android:id="@+id/ll_top_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/btn_food"
-                    style="@style/MainActivityButton.Selector.Start"
-                    android:text="@string/MainActivity_food" />
-
-                <TextView
-                    android:id="@+id/btn_cafe"
-                    style="@style/MainActivityButton.Selector"
-                    android:text="@string/MainActivity_cafe" />
-
-                <TextView
-                    android:id="@+id/btn_convenience"
-                    style="@style/MainActivityButton.Selector"
-                    android:text="@string/MainActivity_convenience" />
-
-                <TextView
-                    android:id="@+id/btn_flower"
-                    style="@style/MainActivityButton.Selector"
-                    android:text="@string/MainActivity_flower" />
-
-                <TextView
-                    android:id="@+id/btn_favorite"
-                    style="@style/MainActivityButton.End"
-                    android:text="@string/MainActivity_favorite" />
-            </LinearLayout>
-        </HorizontalScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_tracking"
@@ -85,7 +43,7 @@
             android:src="@drawable/baseline_gps_fixed_24"
             app:backgroundTint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/hsv_top_btn" />
+            app:layout_constraintTop_toBottomOf="@id/cv_top" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_list"

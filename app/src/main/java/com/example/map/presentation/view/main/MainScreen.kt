@@ -1,19 +1,14 @@
 package com.example.map.presentation.view.main
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +30,7 @@ import com.example.map.presentation.view.main.entity.MapViewMode
 import java.util.*
 
 @Composable
-fun Top(mapViewMode: MapViewMode, onBackClick: () -> Unit, onSearchClick: () -> Unit) {
+fun MainTopAppBar(mapViewMode: MapViewMode, onBackClick: () -> Unit, onSearchClick: () -> Unit) {
     CommonTopAppBar(
         navigationIcon = {
             if (mapViewMode.isNotDefault) {
@@ -67,6 +62,72 @@ private fun MapViewMode.toTitleRes(): Int {
         MapViewMode.SEARCH_CAFE -> R.string.MainActivity_cafe
         MapViewMode.SEARCH_CONVENIENCE -> R.string.MainActivity_convenience
         MapViewMode.SEARCH_FLOWER -> R.string.MainActivity_flower
+    }
+}
+
+@Composable
+fun MainButtonRow(
+    mapViewMode: MapViewMode,
+    onFoodClick: () -> Unit,
+    onCafeClick: () -> Unit,
+    onConvenienceClick: () -> Unit,
+    onFlowerClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
+    val scrollState = rememberScrollState()
+    Row(modifier = Modifier.horizontalScroll(scrollState)) {
+        MainButton(
+            text = stringResource(id = R.string.MainActivity_food),
+            modifier = Modifier
+                .padding(start = 8.dp, end = 4.dp)
+                .clickable { onFoodClick() },
+            isSelected = mapViewMode == MapViewMode.SEARCH_FOOD,
+        )
+        MainButton(
+            text = stringResource(id = R.string.MainActivity_cafe),
+            modifier = Modifier
+                .padding(start = 4.dp, end = 4.dp)
+                .clickable { onCafeClick() },
+            isSelected = mapViewMode == MapViewMode.SEARCH_CAFE,
+        )
+        MainButton(
+            text = stringResource(id = R.string.MainActivity_convenience),
+            modifier = Modifier
+                .padding(start = 4.dp, end = 4.dp)
+                .clickable { onConvenienceClick() },
+            isSelected = mapViewMode == MapViewMode.SEARCH_CONVENIENCE,
+        )
+        MainButton(
+            text = stringResource(id = R.string.MainActivity_flower),
+            modifier = Modifier
+                .padding(start = 4.dp, end = 4.dp)
+                .clickable { onFlowerClick() },
+            isSelected = mapViewMode == MapViewMode.SEARCH_FLOWER,
+        )
+        MainButton(
+            text = stringResource(id = R.string.MainActivity_favorite),
+            modifier = Modifier
+                .padding(start = 4.dp, end = 8.dp)
+                .clickable { onFavoriteClick() },
+        )
+    }
+}
+
+@Composable
+fun MainButton(text: String, modifier: Modifier = Modifier, isSelected: Boolean = false) {
+    Card(
+        modifier = modifier.defaultMinSize(minWidth = 60.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = if (isSelected) BorderStroke(width = 1.dp, color = Color.Black) else null
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterHorizontally),
+            color = Color.Gray
+        )
     }
 }
 

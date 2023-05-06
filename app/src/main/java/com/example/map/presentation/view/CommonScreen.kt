@@ -40,7 +40,7 @@ fun CommonTopAppBar(
 ) {
     Card(
         modifier = Modifier.padding(8.dp),
-
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(width = 1.dp, color = Color.LightGray)
     ) {
         TopAppBar(

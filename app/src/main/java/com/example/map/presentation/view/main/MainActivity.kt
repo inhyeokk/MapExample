@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -93,11 +94,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater).apply {
             cvTop.setContent {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
-                Top(
-                    mapViewMode,
-                    onBackClick = { onBackPressed() },
-                    onSearchClick = { startSearchActivity() },
-                )
+                Column {
+                    MainTopAppBar(
+                        mapViewMode = mapViewMode,
+                        onBackClick = { onBackPressed() },
+                        onSearchClick = { startSearchActivity() },
+                    )
+                    MainButtonRow(
+                        mapViewMode = mapViewMode,
+                        onFoodClick = { requestSearch(SearchType.FOOD, true) },
+                        onCafeClick = { requestSearch(SearchType.CAFE, true) },
+                        onConvenienceClick = { requestSearch(SearchType.CONVENIENCE, true) },
+                        onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
+                        onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
+                    )
+                }
             }
             cvBottomSheet.setContent {
                 val lazyListState = rememberLazyListState()
@@ -117,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                     selectedPosition = selectPositionEvent.position,
                     onDocumentClick = { document, position -> onDocumentClick(document, position) },
                     onFavoriteClick = { viewModel.addFavoriteDocument(it) },
-                    onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) }
+                    onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) },
                 )
             }
         }
@@ -149,13 +160,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initBtnListener(binding: ActivityMainBinding) {
-        binding.btnFood.setOnClickListener { requestSearch(SearchType.FOOD, true) }
-        binding.btnCafe.setOnClickListener { requestSearch(SearchType.CAFE, true) }
-        binding.btnConvenience.setOnClickListener {
-            requestSearch(SearchType.CONVENIENCE, true)
-        }
-        binding.btnFlower.setOnClickListener { requestSearch(SearchType.FLOWER, true) }
-        binding.btnFavorite.setOnClickListener { startActivity(FavoriteActivity::class.java) }
         binding.fabTracking.setOnClickListener { viewModel.toggleTrackingMode() }
         binding.fabList.setOnClickListener { viewModel.toggleListMode() }
     }
@@ -182,10 +186,6 @@ class MainActivity : AppCompatActivity() {
         binding: ActivityMainBinding, bottomSheetBehavior: BottomSheetBehavior<ComposeView>
     ) {
         viewModel.mapViewModeLiveData.observe(this) {
-            binding.btnFood.isSelected = it == MapViewMode.SEARCH_FOOD
-            binding.btnCafe.isSelected = it == MapViewMode.SEARCH_CAFE
-            binding.btnConvenience.isSelected = it == MapViewMode.SEARCH_CONVENIENCE
-            binding.btnFlower.isSelected = it == MapViewMode.SEARCH_FLOWER
             binding.fabList.isVisible = it.isNotDefault
             binding.cvBottomSheet.isVisible = it.isNotDefault
             if (it.isDefault) {
