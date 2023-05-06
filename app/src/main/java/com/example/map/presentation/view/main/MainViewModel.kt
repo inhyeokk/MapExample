@@ -1,5 +1,7 @@
 package com.example.map.presentation.view.main
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.map.SingleLiveEvent
@@ -17,7 +19,6 @@ import com.example.map.presentation.view.main.entity.SearchType
 import com.example.map.presentation.view.main.entity.SelectPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
@@ -33,10 +34,11 @@ class MainViewModel @Inject constructor(
     val trackingModeLiveData =
         handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
-    var documentResultEvent = SingleLiveEvent<DocumentResult>()
+    private var _documentResultEvent = MutableLiveData<DocumentResult>()
+    val documentResultEvent: LiveData<DocumentResult> = _documentResultEvent
     private val favoriteDocumentListCache: MutableList<Document> = ArrayList()
     var mainActionEvent = SingleLiveEvent<MainAction?>()
-    var selectPositionEvent = SingleLiveEvent<SelectPosition>()
+    var selectPositionEvent = MutableLiveData<SelectPosition>()
     var mapViewMode: MapViewMode
         get() = mapViewModeLiveData.value!!
         set(mapViewMode) {
@@ -131,11 +133,11 @@ class MainViewModel @Inject constructor(
     private fun setDocumentListWithFavorite(
         documentList: List<Document>, favoriteDocumentList: List<Document>, isMoveCamera: Boolean
     ) {
-        documentList.forEach {
+        val newDocumentList = documentList.map {
             val favoriteDocument = favoriteDocumentList.find { document1 -> document1.id == it.id }
-            it.isFavorite = favoriteDocument != null
+            it.copy(isFavorite = favoriteDocument != null)
         }
-        documentResultEvent.value = DocumentResult(documentList, isMoveCamera)
+        _documentResultEvent.value = DocumentResult(newDocumentList, isMoveCamera)
     }
 
     private fun setFailureOrEmpty(mainAction: MainAction) {
@@ -151,10 +153,8 @@ class MainViewModel @Inject constructor(
         favoriteDocumentRepository.delete(document.toEntity())
     }
 
-    fun selectDocument(position: Int) {
-        selectPositionEvent.value = selectPositionEvent.value?.let {
-            SelectPosition(it.position, position)
-        } ?: SelectPosition(position)
+    fun selectDocument(position: Int, selectedByMap: Boolean) {
+        selectPositionEvent.value = SelectPosition(position, selectedByMap)
     }
 
     private fun clearSelect() {
@@ -163,7 +163,7 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            favoriteDocumentRepository.getAll().distinctUntilChanged().map {
+            favoriteDocumentRepository.getAll().map {
                 it.map { entity ->
                     Document.fromDocumentEntity(entity)
                 }

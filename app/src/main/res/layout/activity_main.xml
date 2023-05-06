@@ -12,7 +12,7 @@
         android:id="@+id/cl_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_anchor="@id/cl_bottom_sheet">
+        app:layout_anchor="@id/cv_bottom_sheet">
 
         <FrameLayout
             android:id="@+id/fl_container"
@@ -130,24 +130,11 @@
             app:layout_constraintTop_toBottomOf="@id/fab_tracking" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_bottom_sheet"
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/cv_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
         app:behavior_hideable="false"
         app:behavior_peekHeight="0dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_document"
-            android:layout_width="match_parent"
-            android:layout_height="190dp"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

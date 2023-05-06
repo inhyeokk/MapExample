@@ -27,16 +27,17 @@ fun CommonScaffold(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(8.dp),
+            .background(Color.White),
         topBar = {
-            TopAppBar(
-                modifier = Modifier.border(
-                    width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(4.dp)
-                ),
-                navigationIcon = navigationIcon,
-                title = title,
-            )
+            Surface(modifier = Modifier.padding(8.dp)) {
+                TopAppBar(
+                    modifier = Modifier.border(
+                        width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(4.dp)
+                    ),
+                    navigationIcon = navigationIcon,
+                    title = title,
+                )
+            }
         }, content = content
     )
 }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -93,9 +92,8 @@ fun SearchScreen(
 fun SearchResultList(
     padding: PaddingValues, searchResultList: List<SearchResult>, onClick: (SearchResult) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
     LazyColumn(
-        modifier = Modifier.padding(top = 16.dp), state = lazyListState, contentPadding = padding
+        contentPadding = padding
     ) {
         itemsIndexed(
             items = searchResultList,
