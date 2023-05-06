@@ -1,6 +1,8 @@
 package com.example.map.presentation.view.main
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,7 +28,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.map.R
 import com.example.map.presentation.model.Document
+import com.example.map.presentation.view.BackButton
+import com.example.map.presentation.view.CommonTopAppBar
+import com.example.map.presentation.view.SearchImage
+import com.example.map.presentation.view.main.entity.MapViewMode
 import java.util.*
+
+@Composable
+fun Top(mapViewMode: MapViewMode, onBackClick: () -> Unit, onSearchClick: () -> Unit) {
+    CommonTopAppBar(
+        navigationIcon = {
+            if (mapViewMode.isNotDefault) {
+                BackButton(onBackClick)
+            } else {
+                SearchImage()
+            }
+        },
+        title = {
+            val modifier = if (mapViewMode.isNotDefault) {
+                Modifier.clickable { onSearchClick() }
+            } else {
+                Modifier
+            }
+            Text(
+                text = stringResource(
+                    id = mapViewMode.toTitleRes()
+                ), modifier = modifier, fontSize = 16.sp, color = Color.Black
+            )
+        },
+    )
+}
+
+@StringRes
+private fun MapViewMode.toTitleRes(): Int {
+    return when (this) {
+        MapViewMode.DEFAULT -> R.string.MainActivity_search_bar
+        MapViewMode.SEARCH_FOOD -> R.string.MainActivity_food
+        MapViewMode.SEARCH_CAFE -> R.string.MainActivity_cafe
+        MapViewMode.SEARCH_CONVENIENCE -> R.string.MainActivity_convenience
+        MapViewMode.SEARCH_FLOWER -> R.string.MainActivity_flower
+    }
+}
+
+@Composable
+fun BottomSheet(
+    state: LazyListState,
+    documentList: List<Document>,
+    selectedPosition: Int,
+    onDocumentClick: (Document, Int) -> Unit,
+    onFavoriteClick: (Document) -> Unit,
+    onUnFavoriteClick: (Document) -> Unit
+) {
+    DocumentList(
+        modifier = Modifier
+            .height(190.dp)
+            .background(Color.White),
+        state = state,
+        documentList = documentList,
+        selectedPosition = selectedPosition,
+        onClick = onDocumentClick,
+        onFavoriteClick = onFavoriteClick,
+        onUnFavoriteClick = onUnFavoriteClick
+    )
+}
 
 @Composable
 fun DocumentList(
@@ -48,7 +112,13 @@ fun DocumentList(
             itemContent = { index, item ->
                 val isSelected = index == selectedPosition
                 DocumentListItem(
-                    modifier = if (isSelected) Modifier.border(width = 1.dp, color = Color.Black) else Modifier,
+                    modifier = if (isSelected) {
+                        Modifier.border(
+                            width = 1.dp, color = Color.Black
+                        )
+                    } else {
+                        Modifier
+                    },
                     index = index,
                     document = item,
                     onClick = onClick,

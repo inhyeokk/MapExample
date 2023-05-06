@@ -4,23 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
 import com.example.map.R
@@ -31,9 +21,6 @@ import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
-import com.example.map.presentation.view.BackButton
-import com.example.map.presentation.view.CommonTopAppBar
-import com.example.map.presentation.view.SearchImage
 import com.example.map.presentation.view.favorite.FavoriteActivity
 import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
@@ -106,26 +93,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater).apply {
             cvTop.setContent {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
-                CommonTopAppBar(
-                    navigationIcon = {
-                        if (mapViewMode.isNotDefault) {
-                            BackButton { onBackPressed() }
-                        } else {
-                            SearchImage()
-                        }
-                    },
-                    title = {
-                        val modifier = if (mapViewMode.isNotDefault) {
-                            Modifier.clickable { startSearchActivity() }
-                        } else {
-                            Modifier
-                        }
-                        Text(
-                            text = stringResource(
-                                id = mapViewMode.toTitleRes()
-                            ), modifier = modifier, fontSize = 16.sp, color = Color.Black
-                        )
-                    },
+                Top(
+                    mapViewMode,
+                    onBackClick = { onBackPressed() },
+                    onSearchClick = { startSearchActivity() },
                 )
             }
             cvBottomSheet.setContent {
@@ -140,14 +111,11 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-                DocumentList(
-                    modifier = Modifier
-                        .height(190.dp)
-                        .background(Color.White),
+                BottomSheet(
                     state = lazyListState,
                     documentList = documentResult.documentList,
                     selectedPosition = selectPositionEvent.position,
-                    onClick = { document, position -> onDocumentClick(document, position) },
+                    onDocumentClick = { document, position -> onDocumentClick(document, position) },
                     onFavoriteClick = { viewModel.addFavoriteDocument(it) },
                     onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) }
                 )
@@ -159,17 +127,6 @@ class MainActivity : AppCompatActivity() {
         }
         initView(binding)
         observeViewModel(binding, bottomSheetBehavior)
-    }
-
-    @StringRes
-    private fun MapViewMode.toTitleRes(): Int {
-        return when (this) {
-            MapViewMode.DEFAULT -> R.string.MainActivity_search_bar
-            MapViewMode.SEARCH_FOOD -> R.string.MainActivity_food
-            MapViewMode.SEARCH_CAFE -> R.string.MainActivity_cafe
-            MapViewMode.SEARCH_CONVENIENCE -> R.string.MainActivity_convenience
-            MapViewMode.SEARCH_FLOWER -> R.string.MainActivity_flower
-        }
     }
 
     private fun onDocumentClick(document: Document, position: Int) {
