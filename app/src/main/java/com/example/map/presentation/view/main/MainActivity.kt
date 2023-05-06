@@ -4,10 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -15,7 +18,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
 import com.example.map.R
@@ -26,6 +31,9 @@ import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
+import com.example.map.presentation.view.BackButton
+import com.example.map.presentation.view.CommonTopAppBar
+import com.example.map.presentation.view.SearchImage
 import com.example.map.presentation.view.favorite.FavoriteActivity
 import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
@@ -96,6 +104,30 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater).apply {
+            cvTop.setContent {
+                val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
+                CommonTopAppBar(
+                    navigationIcon = {
+                        if (mapViewMode.isNotDefault) {
+                            BackButton { onBackPressed() }
+                        } else {
+                            SearchImage()
+                        }
+                    },
+                    title = {
+                        val modifier = if (mapViewMode.isNotDefault) {
+                            Modifier.clickable { startSearchActivity() }
+                        } else {
+                            Modifier
+                        }
+                        Text(
+                            text = stringResource(
+                                id = mapViewMode.toTitleRes()
+                            ), modifier = modifier, fontSize = 16.sp, color = Color.Black
+                        )
+                    },
+                )
+            }
             cvBottomSheet.setContent {
                 val lazyListState = rememberLazyListState()
                 val coroutineScope = rememberCoroutineScope()
@@ -129,6 +161,17 @@ class MainActivity : AppCompatActivity() {
         observeViewModel(binding, bottomSheetBehavior)
     }
 
+    @StringRes
+    private fun MapViewMode.toTitleRes(): Int {
+        return when (this) {
+            MapViewMode.DEFAULT -> R.string.MainActivity_search_bar
+            MapViewMode.SEARCH_FOOD -> R.string.MainActivity_food
+            MapViewMode.SEARCH_CAFE -> R.string.MainActivity_cafe
+            MapViewMode.SEARCH_CONVENIENCE -> R.string.MainActivity_convenience
+            MapViewMode.SEARCH_FLOWER -> R.string.MainActivity_flower
+        }
+    }
+
     private fun onDocumentClick(document: Document, position: Int) {
         viewModel.selectDocument(position, false)
         mapView!!.selectPOIItem(document.mapPOIItem, true)
@@ -149,8 +192,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initBtnListener(binding: ActivityMainBinding) {
-        binding.btnBack.setOnClickListener { onBackPressed() }
-        binding.btnSearchBar.setOnClickListener { startSearchActivity() }
         binding.btnFood.setOnClickListener { requestSearch(SearchType.FOOD, true) }
         binding.btnCafe.setOnClickListener { requestSearch(SearchType.CAFE, true) }
         binding.btnConvenience.setOnClickListener {
@@ -184,24 +225,14 @@ class MainActivity : AppCompatActivity() {
         binding: ActivityMainBinding, bottomSheetBehavior: BottomSheetBehavior<ComposeView>
     ) {
         viewModel.mapViewModeLiveData.observe(this) {
-            binding.btnBack.isEnabled = it.isNotDefault
-            binding.btnSearchBar.isEnabled = it.isDefault
             binding.btnFood.isSelected = it == MapViewMode.SEARCH_FOOD
             binding.btnCafe.isSelected = it == MapViewMode.SEARCH_CAFE
             binding.btnConvenience.isSelected = it == MapViewMode.SEARCH_CONVENIENCE
             binding.btnFlower.isSelected = it == MapViewMode.SEARCH_FLOWER
             binding.fabList.isVisible = it.isNotDefault
             binding.cvBottomSheet.isVisible = it.isNotDefault
-            when (it) {
-                MapViewMode.DEFAULT -> {
-                    binding.btnSearchBar.setText(R.string.MainActivity_search_bar)
-                    mapView!!.removeAllPOIItems()
-                }
-                MapViewMode.SEARCH_FOOD -> binding.btnSearchBar.setText(R.string.MainActivity_food)
-                MapViewMode.SEARCH_CAFE -> binding.btnSearchBar.setText(R.string.MainActivity_cafe)
-                MapViewMode.SEARCH_CONVENIENCE -> binding.btnSearchBar.setText(R.string.MainActivity_convenience)
-                MapViewMode.SEARCH_FLOWER -> binding.btnSearchBar.setText(R.string.MainActivity_flower)
-                else -> {}
+            if (it.isDefault) {
+                mapView!!.removeAllPOIItems()
             }
         }
         viewModel.trackingModeLiveData.observe(this) {

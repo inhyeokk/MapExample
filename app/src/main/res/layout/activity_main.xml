@@ -24,46 +24,15 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:background="@color/teal_200" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_top"
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/cv_top"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:background="@drawable/shape_solid_white_stroke_gray_radius_4"
             android:translationZ="8dp"
             app:layout_constraintBottom_toTopOf="@id/hsv_top_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/btn_back"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_marginStart="4dp"
-                android:minWidth="40dp"
-                android:padding="8dp"
-                android:src="@drawable/selector_btn_back"
-                app:layout_constraintBottom_toBottomOf="@id/btn_search_bar"
-                app:layout_constraintEnd_toStartOf="@id/btn_search_bar"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/btn_search_bar" />
-
-            <TextView
-                android:id="@+id/btn_search_bar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:gravity="center_vertical"
-                android:minHeight="40dp"
-                android:text="@string/MainActivity_search_bar"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/btn_back"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <HorizontalScrollView
             android:id="@+id/hsv_top_btn"
@@ -73,7 +42,7 @@
             android:scrollbars="none"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cl_top">
+            app:layout_constraintTop_toBottomOf="@id/cv_top">
 
             <LinearLayout
                 android:id="@+id/ll_top_btn"
@@ -134,6 +103,7 @@
         android:id="@+id/cv_bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:translationZ="8dp"
         app:behavior_hideable="false"
         app:behavior_peekHeight="0dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />

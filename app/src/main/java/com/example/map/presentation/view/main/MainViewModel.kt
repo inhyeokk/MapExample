@@ -30,7 +30,8 @@ class MainViewModel @Inject constructor(
     private val localSearchRepository: LocalSearchRepository,
     private val favoriteDocumentRepository: FavoriteDocumentRepository
 ) : BaseViewModel() {
-    val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
+    private val _mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
+    val mapViewModeLiveData: LiveData<MapViewMode> = _mapViewModeLiveData
     val trackingModeLiveData =
         handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
@@ -46,7 +47,7 @@ class MainViewModel @Inject constructor(
                 disableTrackingMode()
                 listMode = ListMode.LIST
             }
-            mapViewModeLiveData.value = mapViewMode
+            _mapViewModeLiveData.value = mapViewMode
         }
 
     fun toggleTrackingMode() {
