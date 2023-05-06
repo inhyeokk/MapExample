@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,11 +28,17 @@ import com.example.map.presentation.model.Document
 import com.example.map.presentation.view.BackButton
 import com.example.map.presentation.view.CommonTopAppBar
 import com.example.map.presentation.view.SearchImage
+import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
+import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 import java.util.*
 
 @Composable
-fun MainTopAppBar(mapViewMode: MapViewMode, onBackClick: () -> Unit, onSearchClick: () -> Unit) {
+fun ColumnScope.MainTopAppBar(
+    mapViewMode: MapViewMode,
+    onBackClick: () -> Unit,
+    onSearchClick: () -> Unit
+) {
     CommonTopAppBar(
         navigationIcon = {
             if (mapViewMode.isNotDefault) {
@@ -66,7 +74,7 @@ private fun MapViewMode.toTitleRes(): Int {
 }
 
 @Composable
-fun MainButtonRow(
+fun ColumnScope.MainButtonRow(
     mapViewMode: MapViewMode,
     onFoodClick: () -> Unit,
     onCafeClick: () -> Unit,
@@ -128,6 +136,47 @@ fun MainButton(text: String, modifier: Modifier = Modifier, isSelected: Boolean 
                 .align(Alignment.CenterHorizontally),
             color = Color.Gray
         )
+    }
+}
+
+@Composable
+fun ColumnScope.MainFloatingActionButton(
+    mapViewMode: MapViewMode,
+    trackingMode: CurrentLocationTrackingMode,
+    listMode: ListMode,
+    onTrackingModeClick: () -> Unit,
+    onListModeClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onTrackingModeClick,
+        modifier = Modifier
+            .padding(top = 8.dp, end = 8.dp)
+            .align(Alignment.End),
+        shape = CircleShape,
+        containerColor = Color.White,
+    ) {
+        val res = when (trackingMode) {
+            CurrentLocationTrackingMode.TrackingModeOnWithoutHeading -> R.drawable.baseline_gps_activated_24
+            CurrentLocationTrackingMode.TrackingModeOnWithHeading -> R.drawable.baseline_compass_calibration_24
+            else -> R.drawable.baseline_gps_fixed_24
+        }
+        Image(painter = painterResource(id = res), contentDescription = "")
+    }
+    if (mapViewMode.isNotDefault) {
+        FloatingActionButton(
+            onClick = onListModeClick,
+            modifier = Modifier
+                .padding(top = 8.dp, end = 8.dp)
+                .align(Alignment.End),
+            shape = CircleShape,
+            containerColor = Color.White,
+        ) {
+            val res = when (listMode) {
+                ListMode.LIST -> R.drawable.baseline_map_24
+                else -> R.drawable.baseline_list_24
+            }
+            Image(painter = painterResource(id = res), contentDescription = "")
+        }
     }
 }
 

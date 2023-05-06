@@ -94,6 +94,8 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater).apply {
             cvTop.setContent {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
+                val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = CurrentLocationTrackingMode.TrackingModeOff)
+                val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
                 Column {
                     MainTopAppBar(
                         mapViewMode = mapViewMode,
@@ -107,6 +109,13 @@ class MainActivity : AppCompatActivity() {
                         onConvenienceClick = { requestSearch(SearchType.CONVENIENCE, true) },
                         onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
                         onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
+                    )
+                    MainFloatingActionButton(
+                        mapViewMode = mapViewMode,
+                        trackingMode = trackingMode,
+                        listMode = listMode,
+                        onTrackingModeClick = { viewModel.toggleTrackingMode() },
+                        onListModeClick = { viewModel.toggleListMode() },
                     )
                 }
             }
@@ -136,7 +145,7 @@ class MainActivity : AppCompatActivity() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.cvBottomSheet).apply {
             isDraggable = false
         }
-        initView(binding)
+        initMapView(binding)
         observeViewModel(binding, bottomSheetBehavior)
     }
 
@@ -146,22 +155,12 @@ class MainActivity : AppCompatActivity() {
         mapView!!.moveCamera(CameraUpdateFactory.newMapPoint(document.mapPOIItem!!.mapPoint))
     }
 
-    private fun initView(binding: ActivityMainBinding) {
-        initMapView(binding)
-        initBtnListener(binding)
-    }
-
     private fun initMapView(binding: ActivityMainBinding) {
         mapView = MapView(this).apply {
             setMapViewEventListener(this@MainActivity.mapViewEventListener)
             setPOIItemEventListener(poiItemEventListener)
         }
         binding.flContainer.addView(mapView)
-    }
-
-    private fun initBtnListener(binding: ActivityMainBinding) {
-        binding.fabTracking.setOnClickListener { viewModel.toggleTrackingMode() }
-        binding.fabList.setOnClickListener { viewModel.toggleListMode() }
     }
 
     private fun startSearchActivity() {
@@ -186,25 +185,12 @@ class MainActivity : AppCompatActivity() {
         binding: ActivityMainBinding, bottomSheetBehavior: BottomSheetBehavior<ComposeView>
     ) {
         viewModel.mapViewModeLiveData.observe(this) {
-            binding.fabList.isVisible = it.isNotDefault
             binding.cvBottomSheet.isVisible = it.isNotDefault
             if (it.isDefault) {
                 mapView!!.removeAllPOIItems()
             }
         }
         viewModel.trackingModeLiveData.observe(this) {
-            when (it) {
-                CurrentLocationTrackingMode.TrackingModeOff -> binding.fabTracking.setImageResource(
-                    R.drawable.baseline_gps_fixed_24
-                )
-                CurrentLocationTrackingMode.TrackingModeOnWithoutHeading -> binding.fabTracking.setImageResource(
-                    R.drawable.baseline_gps_activated_24
-                )
-                CurrentLocationTrackingMode.TrackingModeOnWithHeading -> binding.fabTracking.setImageResource(
-                    R.drawable.baseline_compass_calibration_24
-                )
-                else -> {}
-            }
             if (it.isEnabled()) {
                 AccessFineLocationUtil.checkPermission(this, {
                     mapView!!.currentLocationTrackingMode = it
@@ -218,11 +204,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
         viewModel.listModeLiveData.observe(this) {
-            when (it) {
-                ListMode.LIST -> binding.fabList.setImageResource(R.drawable.baseline_map_24)
-                ListMode.MAP -> binding.fabList.setImageResource(R.drawable.baseline_list_24)
-                else -> {}
-            }
             bottomSheetBehavior.setVisible(it.isList)
         }
         viewModel.documentResultEvent.observe(this) {
