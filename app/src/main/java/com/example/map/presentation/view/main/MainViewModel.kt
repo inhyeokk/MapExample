@@ -1,14 +1,12 @@
 package com.example.map.presentation.view.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.map.SingleLiveEvent
 import com.example.map.base.BaseViewModel
 import com.example.map.data.remote.model.LocalSearchResult
 import com.example.map.domain.repository.FavoriteDocumentRepository
 import com.example.map.domain.repository.LocalSearchRepository
+import com.example.map.domain.repository.MapDataStoreRepository
 import com.example.map.domain.request.SearchByCategoryRequest
 import com.example.map.domain.request.SearchByKeywordRequest
 import com.example.map.presentation.model.Document
@@ -27,11 +25,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val handle: SavedStateHandle,
+    private val mapDataStoreRepository: MapDataStoreRepository,
     private val localSearchRepository: LocalSearchRepository,
     private val favoriteDocumentRepository: FavoriteDocumentRepository
 ) : BaseViewModel() {
     val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
-    val trackingModeLiveData = handle.getLiveData<CurrentLocationTrackingMode>(TRACKING_MODE)
+    val trackingModeLiveData = mapDataStoreRepository.getTrackingMode().asLiveData()
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
     private var _documentResultEvent = MutableLiveData<DocumentResult>()
     val documentResultEvent: LiveData<DocumentResult> = _documentResultEvent
@@ -69,8 +68,8 @@ class MainViewModel @Inject constructor(
         setTrackingMode(CurrentLocationTrackingMode.TrackingModeOff)
     }
 
-    private fun setTrackingMode(trackingMode: CurrentLocationTrackingMode) {
-        trackingModeLiveData.value = trackingMode
+    private fun setTrackingMode(trackingMode: CurrentLocationTrackingMode) = viewModelScope.launch {
+        mapDataStoreRepository.setTrackingMode(trackingMode)
     }
 
     var tempTrackingModeForEnable: CurrentLocationTrackingMode?
@@ -182,7 +181,6 @@ class MainViewModel @Inject constructor(
     companion object {
         private const val MAP_VIEW_MODE = "MAP_VIEW_MODE"
         private const val LIST_MODE = "LIST_MODE"
-        private const val TRACKING_MODE = "TRACKING_MODE"
         private const val TEMP_TRACKING_MODE = "TEMP_TRACKING_MODE"
     }
 }

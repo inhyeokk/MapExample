@@ -13,6 +13,7 @@
     - [Room](https://developer.android.com/jetpack/androidx/releases/room?hl=ko)
     - [Hilt](https://developer.android.com/jetpack/androidx/releases/hilt?hl=ko)
     - [Compose](https://developer.android.com/jetpack/androidx/releases/compose?hl=ko)
+    - [DataStore](https://developer.android.com/jetpack/androidx/releases/datastore?hl=ko)
 
 - Kakao
     - [Map](https://apis.map.kakao.com/android/guide/)
