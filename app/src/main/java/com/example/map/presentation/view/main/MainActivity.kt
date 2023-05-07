@@ -6,22 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.IntentCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.map.R
 import com.example.map.extension.isEnabled
 import com.example.map.extension.showToast
-import com.example.map.extension.toggle
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
@@ -35,9 +28,7 @@ import com.example.map.presentation.view.main.mapview.BasicPOIItemEventListener
 import com.example.map.presentation.view.search.SearchActivity
 import com.example.map.util.AccessFineLocationUtil
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import net.daum.mf.map.api.*
-import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 import java.util.*
 
 @AndroidEntryPoint
@@ -90,53 +81,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
-                val coroutineScope = rememberCoroutineScope()
-                val initialValue = if (mapViewMode.isNotDefault) BottomSheetValue.Expanded else BottomSheetValue.Collapsed
-                val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-                    bottomSheetState = BottomSheetState(initialValue = initialValue)
-                )
-                BottomSheetScaffold(
-                    sheetContent = {
-                        val lazyListState = rememberLazyListState()
-                        val documentResult by viewModel.documentResultEvent.observeAsState(initial = DocumentResult.empty())
-                        val selectPositionEvent by viewModel.selectPositionEvent.observeAsState(
-                            initial = SelectPosition()
-                        )
-                        if (selectPositionEvent.position != -1 && selectPositionEvent.selectedByMap) {
-                            LaunchedEffect(Unit) {
-                                coroutineScope.launch {
-                                    lazyListState.scrollToItem(selectPositionEvent.position)
-                                }
-                            }
-                        }
-                        MainBottomSheet(
-                            state = lazyListState,
-                            documentList = documentResult.documentList,
-                            selectedPosition = selectPositionEvent.position,
-                            onDocumentClick = { document, position ->
-                                onDocumentClick(
-                                    document, position
-                                )
-                            },
-                            onFavoriteClick = { viewModel.addFavoriteDocument(it) },
-                            onUnFavoriteClick = { viewModel.removeFavoriteDocument(it) },
-                        )
-                    },
-                    scaffoldState = bottomSheetScaffoldState,
-                    sheetPeekHeight = 0.dp,
-                    sheetGesturesEnabled = false,
+                val documentResult by viewModel.documentResultEvent.observeAsState(initial = DocumentResult.empty())
+                val selectPositionEvent by viewModel.selectPositionEvent.observeAsState(initial = SelectPosition())
+                val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = MapView.CurrentLocationTrackingMode.TrackingModeOff)
+                val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
+                MainScreen(
+                    mapViewMode = mapViewMode,
+                    documentResult = documentResult,
+                    selectPositionEvent = selectPositionEvent,
+                    trackingMode = trackingMode,
+                    listMode = listMode,
+                    onDocumentClick = { document, position -> onDocumentClick(document, position) },
+                    onDocumentFavoriteClick = { viewModel.addFavoriteDocument(it) },
+                    onDocumentUnFavoriteClick = { viewModel.removeFavoriteDocument(it) },
+                    onBackClick = { onBackPressed() },
+                    onSearchClick = { startSearchActivity() },
+                    onFoodClick = { requestSearch(SearchType.FOOD, true) },
+                    onCafeClick = { requestSearch(SearchType.CAFE, true) },
+                    onConvenienceClick = { requestSearch(SearchType.CONVENIENCE, true) },
+                    onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
+                    onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
+                    onTrackingModeClick = { viewModel.toggleTrackingMode() },
+                    onListModeClick = { viewModel.toggleListMode() },
                 ) {
-                    val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = CurrentLocationTrackingMode.TrackingModeOff)
-                    val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
-                    Box {
-                        AndroidView(factory = { context ->
+                    AndroidView(
+                        factory = { context ->
                             MapView(context).apply {
                                 setMapViewEventListener(this@MainActivity.mapViewEventListener)
                                 setPOIItemEventListener(poiItemEventListener)
@@ -145,39 +120,8 @@ class MainActivity : AppCompatActivity() {
 //                                    currentLocationTrackingMode = trackingMode // 수정 필요
                                 }
                             }
-                        })
-                        Column {
-                            MainTopAppBar(
-                                mapViewMode = mapViewMode,
-                                onBackClick = { onBackPressed() },
-                                onSearchClick = { startSearchActivity() },
-                            )
-                            MainButtonRow(
-                                mapViewMode = mapViewMode,
-                                onFoodClick = { requestSearch(SearchType.FOOD, true) },
-                                onCafeClick = { requestSearch(SearchType.CAFE, true) },
-                                onConvenienceClick = {
-                                    requestSearch(
-                                        SearchType.CONVENIENCE, true
-                                    )
-                                },
-                                onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
-                                onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
-                            )
-                            MainFloatingActionButtons(
-                                mapViewMode = mapViewMode,
-                                trackingMode = trackingMode,
-                                listMode = listMode,
-                                onTrackingModeClick = { viewModel.toggleTrackingMode() },
-                                onListModeClick = {
-                                    viewModel.toggleListMode()
-                                    coroutineScope.launch {
-                                        bottomSheetScaffoldState.bottomSheetState.toggle()
-                                    }
-                                },
-                            )
-                        }
-                    }
+                        },
+                    )
                 }
             }
         }

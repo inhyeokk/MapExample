@@ -9,8 +9,14 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material3.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,14 +30,102 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.map.R
+import com.example.map.extension.toggle
 import com.example.map.presentation.model.Document
+import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.view.BackButton
 import com.example.map.presentation.view.CommonTopAppBar
 import com.example.map.presentation.view.SearchImage
 import com.example.map.presentation.view.main.entity.ListMode
 import com.example.map.presentation.view.main.entity.MapViewMode
+import com.example.map.presentation.view.main.entity.SelectPosition
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 import java.util.*
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun MainScreen(
+    mapViewMode: MapViewMode,
+    documentResult: DocumentResult,
+    selectPositionEvent: SelectPosition,
+    trackingMode: CurrentLocationTrackingMode,
+    listMode: ListMode,
+    onDocumentClick: (Document, Int) -> Unit,
+    onDocumentFavoriteClick: (Document) -> Unit,
+    onDocumentUnFavoriteClick: (Document) -> Unit,
+    onBackClick: () -> Unit,
+    onSearchClick: () -> Unit,
+    onFoodClick: () -> Unit,
+    onCafeClick: () -> Unit,
+    onConvenienceClick: () -> Unit,
+    onFlowerClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+    onTrackingModeClick: () -> Unit,
+    onListModeClick: () -> Unit,
+    mapView: @Composable () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val initialValue =
+        if (mapViewMode.isNotDefault) BottomSheetValue.Expanded else BottomSheetValue.Collapsed
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(initialValue = initialValue)
+    )
+    BottomSheetScaffold(
+        sheetContent = {
+            val lazyListState = rememberLazyListState()
+            if (selectPositionEvent.position != -1 && selectPositionEvent.selectedByMap) {
+                LaunchedEffect(Unit) {
+                    coroutineScope.launch {
+                        lazyListState.scrollToItem(selectPositionEvent.position)
+                    }
+                }
+            }
+            MainBottomSheet(
+                state = lazyListState,
+                documentList = documentResult.documentList,
+                selectedPosition = selectPositionEvent.position,
+                onDocumentClick = onDocumentClick,
+                onFavoriteClick = onDocumentFavoriteClick,
+                onUnFavoriteClick = onDocumentUnFavoriteClick,
+            )
+        },
+        scaffoldState = bottomSheetScaffoldState,
+        sheetPeekHeight = 0.dp,
+        sheetGesturesEnabled = false,
+    ) {
+        Box {
+            mapView()
+            Column {
+                MainTopAppBar(
+                    mapViewMode = mapViewMode,
+                    onBackClick = onBackClick,
+                    onSearchClick = onSearchClick,
+                )
+                MainButtonRow(
+                    mapViewMode = mapViewMode,
+                    onFoodClick = onFoodClick,
+                    onCafeClick = onCafeClick,
+                    onConvenienceClick = onConvenienceClick,
+                    onFlowerClick = onFlowerClick,
+                    onFavoriteClick = onFavoriteClick,
+                )
+                MainFloatingActionButtons(
+                    mapViewMode = mapViewMode,
+                    trackingMode = trackingMode,
+                    listMode = listMode,
+                    onTrackingModeClick = onTrackingModeClick,
+                    onListModeClick = {
+                        onListModeClick()
+                        coroutineScope.launch {
+                            bottomSheetScaffoldState.bottomSheetState.toggle()
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun ColumnScope.MainTopAppBar(
