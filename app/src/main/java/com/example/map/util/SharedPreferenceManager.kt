@@ -1,6 +1,7 @@
 package com.example.map.util
 
 import android.content.Context
+import androidx.core.content.edit
 import com.example.map.presentation.model.Location
 import com.google.gson.Gson
 
@@ -18,36 +19,33 @@ object SharedPreferenceManager {
     fun getLastLocation(context: Context): Location? {
         val sharedPreferences =
             context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        val jsonString = sharedPreferences.getString(KEY_LAST_LOCATION, "")
-        return if (!jsonString!!.isEmpty()) {
-            Gson().fromJson(
-                jsonString,
-                Location::class.java
-            )
+        val jsonString = sharedPreferences.getString(KEY_LAST_LOCATION, "") ?: ""
+        return if (jsonString.isNotEmpty()) {
+            Gson().fromJson(jsonString, Location::class.java)
         } else {
             null
         }
     }
 
-    fun setLastLocation(context: Context, location: Location?) {
+    fun setLastLocation(context: Context, location: Location) {
         val sharedPreferences =
             context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putString(KEY_LAST_LOCATION, Gson().toJson(location))
-        editor.apply()
+        sharedPreferences.edit {
+            putString(KEY_LAST_LOCATION, Gson().toJson(location))
+        }
     }
 
-    fun getBoolean(context: Context, key: String?): Boolean {
+    private fun getBoolean(context: Context, key: String): Boolean {
         val sharedPreferences =
             context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
         return sharedPreferences.getBoolean(key, true)
     }
 
-    fun putBoolean(context: Context, key: String?, value: Boolean) {
+    private fun putBoolean(context: Context, key: String, value: Boolean) {
         val sharedPreferences =
             context.getSharedPreferences("shared_preferences", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean(key, value)
-        editor.apply()
+        sharedPreferences.edit {
+            putBoolean(key, value)
+        }
     }
 }

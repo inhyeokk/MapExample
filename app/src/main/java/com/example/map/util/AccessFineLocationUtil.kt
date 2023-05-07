@@ -2,7 +2,6 @@ package com.example.map.util
 
 import android.Manifest
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -31,9 +30,9 @@ object AccessFineLocationUtil {
 
     fun checkPermission(
         activity: Activity,
-        onGranted: Runnable,
-        onRequest: Runnable,
-        onCanceled: Runnable
+        onGranted: () -> Unit,
+        onRequest: () -> Unit,
+        onCanceled: () -> Unit
     ) {
         val permission = Manifest.permission.ACCESS_FINE_LOCATION
         if (ContextCompat.checkSelfPermission(
@@ -41,7 +40,7 @@ object AccessFineLocationUtil {
                 permission
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            onGranted.run()
+            onGranted()
         } else if (SharedPreferenceManager.isFirst(activity) || ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 permission
@@ -55,16 +54,18 @@ object AccessFineLocationUtil {
         } else {
             AlertDialog.Builder(activity)
                 .setMessage(R.string.AlertDialog_message_request_location_permission)
-                .setPositiveButton(R.string.AlertDialog_button_ok) { dialog: DialogInterface?, which: Int ->
-                    onRequest.run()
+                .setPositiveButton(R.string.AlertDialog_button_ok) { _, _ ->
+                    onRequest()
                     val intent = Intent(
                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.parse("package:" + activity.packageName)
                     )
                     activity.startActivity(intent)
-                }
-                .setNegativeButton(R.string.AlertDialog_button_cancel) { dialog: DialogInterface?, which: Int -> onCanceled.run() }
-                .setOnCancelListener { dialog: DialogInterface? -> onCanceled.run() }.show()
+                }.setNegativeButton(R.string.AlertDialog_button_cancel) { _, _ ->
+                    onCanceled()
+                }.setOnCancelListener {
+                    onCanceled()
+                }.show()
         }
     }
 

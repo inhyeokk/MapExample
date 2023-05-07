@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -13,6 +12,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.IntentCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.map.R
+import com.example.map.base.BaseAppCompatActivity
 import com.example.map.extension.isEnabled
 import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
@@ -32,7 +32,7 @@ import net.daum.mf.map.api.*
 import java.util.*
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseAppCompatActivity() {
     private var mapView: MapView? = null
     private val viewModel by viewModels<MainViewModel>()
     private val searchResultLauncher =
@@ -111,13 +111,13 @@ class MainActivity : AppCompatActivity() {
                     onListModeClick = { viewModel.toggleListMode() },
                 ) {
                     AndroidView(
-                        factory = { context ->
-                            MapView(context).apply {
+                        factory = {
+                            MapView(this).apply {
                                 setMapViewEventListener(this@MainActivity.mapViewEventListener)
                                 setPOIItemEventListener(poiItemEventListener)
                             }.also {
                                 mapView = it.apply {
-//                                    currentLocationTrackingMode = trackingMode // 수정 필요
+                                    currentLocationTrackingMode = trackingMode
                                 }
                             }
                         },
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.trackingModeLiveData.observe(this) {
             if (it.isEnabled()) {
                 AccessFineLocationUtil.checkPermission(this, {
-                    mapView?.currentLocationTrackingMode = it // TODO 수정 필요
+                    mapView?.currentLocationTrackingMode = it
                 }, {
                     viewModel.tempTrackingModeForEnable = it
                 }) {

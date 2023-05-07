@@ -30,10 +30,8 @@ class MainViewModel @Inject constructor(
     private val localSearchRepository: LocalSearchRepository,
     private val favoriteDocumentRepository: FavoriteDocumentRepository
 ) : BaseViewModel() {
-    private val _mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
-    val mapViewModeLiveData: LiveData<MapViewMode> = _mapViewModeLiveData
-    val trackingModeLiveData =
-        handle.getLiveData(TRACKING_MODE, CurrentLocationTrackingMode.TrackingModeOnWithoutHeading)
+    val mapViewModeLiveData = handle.getLiveData(MAP_VIEW_MODE, MapViewMode.DEFAULT)
+    val trackingModeLiveData = handle.getLiveData<CurrentLocationTrackingMode>(TRACKING_MODE)
     val listModeLiveData = handle.getLiveData(LIST_MODE, ListMode.LIST)
     private var _documentResultEvent = MutableLiveData<DocumentResult>()
     val documentResultEvent: LiveData<DocumentResult> = _documentResultEvent
@@ -47,13 +45,13 @@ class MainViewModel @Inject constructor(
                 disableTrackingMode()
                 listMode = ListMode.LIST
             }
-            _mapViewModeLiveData.value = mapViewMode
+            mapViewModeLiveData.value = mapViewMode
         }
 
     fun toggleTrackingMode() {
         var trackingMode = trackingModeLiveData.value
         if (trackingMode == null) {
-            trackingMode = CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+            trackingMode = CurrentLocationTrackingMode.TrackingModeOff
         }
         val newTrackingMode = when (trackingMode) {
             CurrentLocationTrackingMode.TrackingModeOnWithoutHeading -> CurrentLocationTrackingMode.TrackingModeOnWithHeading
