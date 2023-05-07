@@ -142,7 +142,7 @@ fun ColumnScope.MainTopAppBar(
             }
         },
         title = {
-            val modifier = if (mapViewMode.isNotDefault) {
+            val modifier = if (mapViewMode.isDefault) {
                 Modifier.clickable { onSearchClick() }
             } else {
                 Modifier
@@ -181,47 +181,54 @@ fun ColumnScope.MainButtonRow(
         MainButton(
             text = stringResource(id = R.string.MainActivity_food),
             modifier = Modifier
-                .padding(start = 8.dp, end = 4.dp)
-                .clickable { onFoodClick() },
+                .padding(start = 8.dp, end = 4.dp),
             isSelected = mapViewMode == MapViewMode.SEARCH_FOOD,
+            onClick = { onFoodClick() }
         )
         MainButton(
             text = stringResource(id = R.string.MainActivity_cafe),
             modifier = Modifier
-                .padding(start = 4.dp, end = 4.dp)
-                .clickable { onCafeClick() },
+                .padding(start = 4.dp, end = 4.dp),
             isSelected = mapViewMode == MapViewMode.SEARCH_CAFE,
+            onClick = { onCafeClick() }
         )
         MainButton(
             text = stringResource(id = R.string.MainActivity_convenience),
             modifier = Modifier
-                .padding(start = 4.dp, end = 4.dp)
-                .clickable { onConvenienceClick() },
+                .padding(start = 4.dp, end = 4.dp),
             isSelected = mapViewMode == MapViewMode.SEARCH_CONVENIENCE,
+            onClick = { onConvenienceClick() },
         )
         MainButton(
             text = stringResource(id = R.string.MainActivity_flower),
             modifier = Modifier
-                .padding(start = 4.dp, end = 4.dp)
-                .clickable { onFlowerClick() },
+                .padding(start = 4.dp, end = 4.dp),
             isSelected = mapViewMode == MapViewMode.SEARCH_FLOWER,
+            onClick = { onFlowerClick() },
         )
         MainButton(
             text = stringResource(id = R.string.MainActivity_favorite),
             modifier = Modifier
-                .padding(start = 4.dp, end = 8.dp)
-                .clickable { onFavoriteClick() },
+                .padding(start = 4.dp, end = 8.dp),
+            onClick = { onFavoriteClick() },
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainButton(text: String, modifier: Modifier = Modifier, isSelected: Boolean = false) {
+fun MainButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+    onClick: () -> Unit
+) {
     Card(
         modifier = modifier.defaultMinSize(minWidth = 60.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        border = if (isSelected) BorderStroke(width = 1.dp, color = Color.Black) else null
+        border = if (isSelected) BorderStroke(width = 1.dp, color = Color.Black) else null,
+        onClick = onClick
     ) {
         Text(
             text = text,
@@ -350,8 +357,8 @@ fun DocumentListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .clickable { onClick(document, index) },
+            .clickable { onClick(document, index) }
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
