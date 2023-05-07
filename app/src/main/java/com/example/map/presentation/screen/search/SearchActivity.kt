@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.search
+package com.example.map.presentation.screen.search
 
 import android.content.Intent
 import android.os.Bundle

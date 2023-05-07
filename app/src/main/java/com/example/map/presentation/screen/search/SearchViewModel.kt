@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.search
+package com.example.map.presentation.screen.search
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

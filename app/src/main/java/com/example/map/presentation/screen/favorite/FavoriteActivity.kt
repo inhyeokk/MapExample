@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.favorite
+package com.example.map.presentation.screen.favorite
 
 import android.os.Bundle
 import androidx.activity.compose.setContent

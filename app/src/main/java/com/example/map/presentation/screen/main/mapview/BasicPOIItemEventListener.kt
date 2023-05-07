@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.main.mapview
+package com.example.map.presentation.screen.main.mapview
 
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPOIItem.CalloutBalloonButtonType

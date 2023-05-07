@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.main
+package com.example.map.presentation.screen.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -18,14 +18,14 @@ import com.example.map.extension.showToast
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
-import com.example.map.presentation.view.favorite.FavoriteActivity
-import com.example.map.presentation.view.main.entity.ListMode
-import com.example.map.presentation.view.main.entity.MapViewMode
-import com.example.map.presentation.view.main.entity.SearchType
-import com.example.map.presentation.view.main.entity.SelectPosition
-import com.example.map.presentation.view.main.mapview.BasicMapViewEventListener
-import com.example.map.presentation.view.main.mapview.BasicPOIItemEventListener
-import com.example.map.presentation.view.search.SearchActivity
+import com.example.map.presentation.screen.favorite.FavoriteActivity
+import com.example.map.presentation.screen.main.entity.ListMode
+import com.example.map.presentation.screen.main.entity.MapViewMode
+import com.example.map.presentation.screen.main.entity.SearchType
+import com.example.map.presentation.screen.main.entity.SelectPosition
+import com.example.map.presentation.screen.main.mapview.BasicMapViewEventListener
+import com.example.map.presentation.screen.main.mapview.BasicPOIItemEventListener
+import com.example.map.presentation.screen.search.SearchActivity
 import com.example.map.util.AccessFineLocationUtil
 import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.*

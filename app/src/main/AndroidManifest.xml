@@ -7,17 +7,17 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".MyApplication"
+        android:name=".MapApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/MyApplication"
+        android:theme="@style/MapApplication"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".presentation.view.main.MainActivity"
+            android:name=".presentation.screen.main.MainActivity"
             android:exported="true"
-            android:theme="@style/MyApplication.Starting">
+            android:theme="@style/MapApplication.Starting">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,10 +26,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.view.search.SearchActivity"
+            android:name=".presentation.screen.search.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.view.favorite.FavoriteActivity"
+            android:name=".presentation.screen.favorite.FavoriteActivity"
             android:exported="false" />
 
         <meta-data

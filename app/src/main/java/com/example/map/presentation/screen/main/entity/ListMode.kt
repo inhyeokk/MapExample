@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.main.entity
+package com.example.map.presentation.screen.main.entity
 
 enum class ListMode {
     LIST, MAP;

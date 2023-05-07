@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.favorite
+package com.example.map.presentation.screen.favorite
 
 import androidx.lifecycle.viewModelScope
 import com.example.map.base.BaseViewModel

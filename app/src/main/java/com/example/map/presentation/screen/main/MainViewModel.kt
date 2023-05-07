@@ -1,7 +1,6 @@
-package com.example.map.presentation.view.main
+package com.example.map.presentation.screen.main
 
 import androidx.lifecycle.*
-import com.example.map.SingleLiveEvent
 import com.example.map.base.BaseViewModel
 import com.example.map.data.remote.model.LocalSearchResult
 import com.example.map.domain.repository.FavoriteDocumentRepository
@@ -11,10 +10,10 @@ import com.example.map.domain.request.SearchByCategoryRequest
 import com.example.map.domain.request.SearchByKeywordRequest
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
-import com.example.map.presentation.view.main.entity.ListMode
-import com.example.map.presentation.view.main.entity.MapViewMode
-import com.example.map.presentation.view.main.entity.SearchType
-import com.example.map.presentation.view.main.entity.SelectPosition
+import com.example.map.presentation.screen.main.entity.ListMode
+import com.example.map.presentation.screen.main.entity.MapViewMode
+import com.example.map.presentation.screen.main.entity.SearchType
+import com.example.map.presentation.screen.main.entity.SelectPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map

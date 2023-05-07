@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.search
+package com.example.map.presentation.screen.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.map.R
 import com.example.map.presentation.model.SearchResult
-import com.example.map.presentation.view.CloseButton
-import com.example.map.presentation.view.CommonScaffold
-import com.example.map.presentation.view.SearchButton
+import com.example.map.presentation.screen.CloseButton
+import com.example.map.presentation.screen.CommonScaffold
+import com.example.map.presentation.screen.SearchButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

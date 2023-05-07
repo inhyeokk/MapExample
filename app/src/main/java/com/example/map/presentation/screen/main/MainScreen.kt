@@ -1,4 +1,4 @@
-package com.example.map.presentation.view.main
+package com.example.map.presentation.screen.main
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
@@ -33,12 +33,12 @@ import com.example.map.R
 import com.example.map.extension.toggle
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
-import com.example.map.presentation.view.BackButton
-import com.example.map.presentation.view.CommonTopAppBar
-import com.example.map.presentation.view.SearchImage
-import com.example.map.presentation.view.main.entity.ListMode
-import com.example.map.presentation.view.main.entity.MapViewMode
-import com.example.map.presentation.view.main.entity.SelectPosition
+import com.example.map.presentation.screen.BackButton
+import com.example.map.presentation.screen.CommonTopAppBar
+import com.example.map.presentation.screen.SearchImage
+import com.example.map.presentation.screen.main.entity.ListMode
+import com.example.map.presentation.screen.main.entity.MapViewMode
+import com.example.map.presentation.screen.main.entity.SelectPosition
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapView.CurrentLocationTrackingMode
 import java.util.*

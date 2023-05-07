@@ -1,4 +1,4 @@
-package com.example.map.presentation.view
+package com.example.map.presentation.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

@@ -1,4 +1,4 @@
-package com.example.map
+package com.example.map.presentation.screen.main
 
 /*
  *  Copyright 2017 Google Inc.
