@@ -1,14 +1,16 @@
 package com.example.map.presentation.model
 
+import android.os.Parcelable
 import com.example.map.data.remote.model.DocumentResult
-import java.io.Serializable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class SearchResult(
     val addressName: String,
     val addressType: String,
     private val x: String,
     private val y: String
-) : Serializable {
+) : Parcelable {
     fun x() = x.toDouble()
     fun y() = y.toDouble()
 

@@ -16,6 +16,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.IntentCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.map.R
 import com.example.map.extension.isEnabled
@@ -47,15 +48,16 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 it.data?.let { data ->
-                    setSearchResultInMapView(data.getSerializableExtra(SearchActivity.SEARCH_RESULT) as SearchResult)
+                    setSearchResultInMapView(IntentCompat.getParcelableExtra(data, SearchActivity.SEARCH_RESULT, SearchResult::class.java)!!)
                 }
             }
         }
 
     private fun setSearchResultInMapView(searchResult: SearchResult) {
         mapView!!.removeAllPOIItems()
-        val mapPoint = MapPoint.mapPointWithGeoCoord(searchResult.y(), searchResult.x())
-        addPOIItemInMapView(mapPoint, searchResult.addressName)
+        val mapPoint = MapPoint.mapPointWithGeoCoord(searchResult.y(), searchResult.x()).apply {
+            addPOIItemInMapView(this, searchResult.addressName)
+        }
         mapView!!.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint))
     }
 
@@ -139,7 +141,9 @@ class MainActivity : AppCompatActivity() {
                                 setMapViewEventListener(this@MainActivity.mapViewEventListener)
                                 setPOIItemEventListener(poiItemEventListener)
                             }.also {
-                                mapView = it
+                                mapView = it.apply {
+//                                    currentLocationTrackingMode = trackingMode // 수정 필요
+                                }
                             }
                         })
                         Column {
@@ -225,16 +229,13 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.documentResultEvent.observe(this) {
             mapView!!.removeAllPOIItems()
-            val documentList = it!!.documentList
-            val mapPointList: MutableList<MapPoint> = ArrayList()
-            documentList.forEach { document ->
-                val mapPoint = MapPoint.mapPointWithGeoCoord(document.y(), document.x())
-                mapPointList.add(mapPoint)
-                val poiItem = addPOIItemInMapView(
-                    mapPoint,
-                    document.placeName + String.format(Locale.getDefault(), " %.1f", document.rate)
-                )
-                document.mapPOIItem = poiItem
+            val mapPointList = it.documentList.map { document ->
+                MapPoint.mapPointWithGeoCoord(document.y(), document.x()).apply {
+                    document.mapPOIItem = addPOIItemInMapView(
+                        mapPoint = this,
+                        name = "${document.placeName} ${String.format(Locale.getDefault(), "%.1f", document.rate)}"
+                    )
+                }
             }
             if (it.isMoveCamera) {
                 val mapPointBounds = MapPointBounds(mapPointList.toTypedArray())
