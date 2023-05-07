@@ -140,20 +140,15 @@ fun MainButton(text: String, modifier: Modifier = Modifier, isSelected: Boolean 
 }
 
 @Composable
-fun ColumnScope.MainFloatingActionButton(
+fun ColumnScope.MainFloatingActionButtons(
     mapViewMode: MapViewMode,
     trackingMode: CurrentLocationTrackingMode,
     listMode: ListMode,
     onTrackingModeClick: () -> Unit,
     onListModeClick: () -> Unit
 ) {
-    FloatingActionButton(
+    MainFloatingActionButton(
         onClick = onTrackingModeClick,
-        modifier = Modifier
-            .padding(top = 8.dp, end = 8.dp)
-            .align(Alignment.End),
-        shape = CircleShape,
-        containerColor = Color.White,
     ) {
         val res = when (trackingMode) {
             CurrentLocationTrackingMode.TrackingModeOnWithoutHeading -> R.drawable.baseline_gps_activated_24
@@ -163,13 +158,8 @@ fun ColumnScope.MainFloatingActionButton(
         Image(painter = painterResource(id = res), contentDescription = "")
     }
     if (mapViewMode.isNotDefault) {
-        FloatingActionButton(
+        MainFloatingActionButton(
             onClick = onListModeClick,
-            modifier = Modifier
-                .padding(top = 8.dp, end = 8.dp)
-                .align(Alignment.End),
-            shape = CircleShape,
-            containerColor = Color.White,
         ) {
             val res = when (listMode) {
                 ListMode.LIST -> R.drawable.baseline_map_24
@@ -178,6 +168,19 @@ fun ColumnScope.MainFloatingActionButton(
             Image(painter = painterResource(id = res), contentDescription = "")
         }
     }
+}
+
+@Composable
+fun ColumnScope.MainFloatingActionButton(onClick: () -> Unit, content: @Composable () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        modifier = Modifier
+            .padding(top = 8.dp, end = 8.dp)
+            .align(Alignment.End),
+        shape = CircleShape,
+        containerColor = Color.White,
+        content = content
+    )
 }
 
 @Composable

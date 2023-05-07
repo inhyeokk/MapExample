@@ -20,6 +20,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.map.R
 import com.example.map.extension.isEnabled
 import com.example.map.extension.showToast
+import com.example.map.extension.toggle
 import com.example.map.presentation.model.Document
 import com.example.map.presentation.model.DocumentResult
 import com.example.map.presentation.model.SearchResult
@@ -94,17 +95,11 @@ class MainActivity : AppCompatActivity() {
         setContent {
             MaterialTheme {
                 val mapViewMode by viewModel.mapViewModeLiveData.observeAsState(initial = MapViewMode.DEFAULT)
-                val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
                 val coroutineScope = rememberCoroutineScope()
+                val initialValue = if (mapViewMode.isNotDefault) BottomSheetValue.Expanded else BottomSheetValue.Collapsed
                 val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-                    bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
+                    bottomSheetState = BottomSheetState(initialValue = initialValue)
                 )
-                LaunchedEffect(Unit) { // TODO 수정 필요
-                    coroutineScope.launch {
-                        if (mapViewMode.isNotDefault) bottomSheetScaffoldState.bottomSheetState.expand()
-                        else bottomSheetScaffoldState.bottomSheetState.collapse()
-                    }
-                }
                 BottomSheetScaffold(
                     sheetContent = {
                         val lazyListState = rememberLazyListState()
@@ -137,6 +132,7 @@ class MainActivity : AppCompatActivity() {
                     sheetGesturesEnabled = false,
                 ) {
                     val trackingMode by viewModel.trackingModeLiveData.observeAsState(initial = CurrentLocationTrackingMode.TrackingModeOff)
+                    val listMode by viewModel.listModeLiveData.observeAsState(initial = ListMode.LIST)
                     Box {
                         AndroidView(factory = { context ->
                             MapView(context).apply {
@@ -164,12 +160,17 @@ class MainActivity : AppCompatActivity() {
                                 onFlowerClick = { requestSearch(SearchType.FLOWER, true) },
                                 onFavoriteClick = { startActivity(FavoriteActivity::class.java) },
                             )
-                            MainFloatingActionButton(
+                            MainFloatingActionButtons(
                                 mapViewMode = mapViewMode,
                                 trackingMode = trackingMode,
                                 listMode = listMode,
                                 onTrackingModeClick = { viewModel.toggleTrackingMode() },
-                                onListModeClick = { viewModel.toggleListMode() },
+                                onListModeClick = {
+                                    viewModel.toggleListMode()
+                                    coroutineScope.launch {
+                                        bottomSheetScaffoldState.bottomSheetState.toggle()
+                                    }
+                                },
                             )
                         }
                     }
@@ -206,7 +207,7 @@ class MainActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.mapViewModeLiveData.observe(this) {
             if (it.isDefault) {
-                mapView?.removeAllPOIItems() // TODO 수정 필요
+                mapView?.removeAllPOIItems()
             }
         }
         viewModel.trackingModeLiveData.observe(this) {
