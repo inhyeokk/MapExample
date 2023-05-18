@@ -96,6 +96,7 @@ obj/
 .idea/jarRepositories.xml
 .idea/navEditor.xml
 .idea/inspectionProfiles/Project_Default.xml
+.idea/kotlinc.xml
 
 # Legacy Eclipse project files
 .classpath
